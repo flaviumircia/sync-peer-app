@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="OnboardingParagraphText">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">@dimen/text_medium_size</item>
+    </style>
+</resources>

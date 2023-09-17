@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SyncPeerApp</string>
+    <string name="onboarding_presentation_text">Spune Adio incarcarilor lente, latentei ridicate si restrictiilor. \nCu SyncPeer esti in controlul experientei tale de live-streaming, sustinuta prin conexiuni peer-to-peer.</string>
+</resources>

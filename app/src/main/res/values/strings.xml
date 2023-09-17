@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SyncPeerApp</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="onboarding_presentation_text">Say goodbye to buffering, latency, and bandwidth constraints. \nWith SyncPeer, you are in control of your live streaming experience, empowered by direct peer-to-peer connections.</string>
+</resources>
