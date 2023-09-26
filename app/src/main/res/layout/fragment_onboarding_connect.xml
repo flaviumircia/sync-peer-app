@@ -12,31 +12,31 @@
 
 
         <TextView
-            android:id="@+id/createAccountTitleText"
+            android:id="@+id/connectTitleText"
             style="@style/OnboardingTitleText"
             android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create_account"
+            android:text="@string/connect"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/createAccountParagraphText"
+            android:id="@+id/connectParagraphText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="@string/createAccountParagraph"
+            android:text="@string/connectParagraphText"
             android:gravity="center_horizontal"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/createAccountTitleText"
+            app:layout_constraintEnd_toEndOf="@+id/connectTitleText"
             app:layout_constraintHorizontal_bias="0.495"
-            app:layout_constraintStart_toStartOf="@+id/createAccountTitleText"
-            app:layout_constraintTop_toBottomOf="@+id/createAccountTitleText"
+            app:layout_constraintStart_toStartOf="@+id/connectTitleText"
+            app:layout_constraintTop_toBottomOf="@+id/connectTitleText"
             app:layout_constraintVertical_bias="0.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

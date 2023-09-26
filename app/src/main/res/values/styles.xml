@@ -4,4 +4,12 @@
         <item name="android:fontFamily">@font/montserrat_medium</item>
         <item name="android:textSize">@dimen/text_medium_size</item>
     </style>
+    <style name="OnboardingTitleText">
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">@dimen/text_large_size</item>
+    </style>
+    <style name="ButtonTextStyle">
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">@dimen/text_large_size</item>
+    </style>
 </resources>

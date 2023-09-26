@@ -2,4 +2,13 @@
 <resources>
     <string name="app_name">SyncPeerApp</string>
     <string name="onboarding_presentation_text">Spune Adio incarcarilor lente, latentei ridicate si restrictiilor. \nCu SyncPeer esti in controlul experientei tale de live-streaming, sustinuta prin conexiuni peer-to-peer.</string>
+    <string name="go">Go</string>
+    <string name="create_account">Crează-ți cont</string>
+    <string name="createAccountParagraph">Crează-ți cont fără bătăi de cap:\nRapid si usor, contul tău te așteaptă!</string>
+    <string name="connect">Conecteză-te</string>
+    <string name="connectParagraphText">
+        Conectează-te rapid: Bazează-te pe o \nconexiune, solidă, peer-to-peer.</string>
+    <string name="saveForLaterParagraph">Salvează fluxul pentru mai târziu</string>
+    <string name="capture_and_store_streams_for_future_viewing">Poți înregistra și salva fluxurile \npentru mai târziu!</string>
+
 </resources>

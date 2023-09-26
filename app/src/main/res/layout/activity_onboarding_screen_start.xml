@@ -36,18 +36,33 @@
                 android:id="@+id/circular_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:indicatorColor="@color/black"
+                app:indicatorColor="@color/light_blue"
                 android:progress="@{viewModel.progress}"
                 android:max="100"
                 app:trackColor="@color/white"
-                app:indicatorSize="64dp"/>
+                app:indicatorSize="70dp"/>
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/newReportButton"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/goButton"
+                style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                app:cornerRadius="50dp"
+                app:fabSize="normal"
+                android:onClick="@{()->viewModel.changeFragmentOnButtonClick()}"
+                />
+
+            <TextView
+                android:id="@+id/goText"
+                style="@style/ButtonTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:elevation="16dp"
+                android:textColor="@color/light_blue"
                 android:layout_centerInParent="true"
-                app:fabSize="normal" />
+                android:text="@string/go" />
 
         </RelativeLayout>
         <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator

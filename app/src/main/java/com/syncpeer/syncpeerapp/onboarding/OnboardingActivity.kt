@@ -6,10 +6,13 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.onboarding.adapters.ViewPagerAdapter
+import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingConnectFragment
 import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingCreateAccountFragment
+import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingSaveForLaterFragment
 import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingScreenStartFragment
 import com.syncpeer.syncpeerapp.onboarding.viewmodels.OnboardingScreenActivityViewModel
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
@@ -24,15 +27,21 @@ class OnboardingActivity : AppCompatActivity() {
         val wormDotsIndicator = findViewById<WormDotsIndicator>(R.id.worm_dots_indicator)
         val circularProgressIndicator =
             findViewById<CircularProgressIndicator>(R.id.circular_progress)
+        // ViewModels
         val pagerAdapter = ViewPagerAdapter(this)
         val viewModel = ViewModelProvider(this)[OnboardingScreenActivityViewModel::class.java]
 
+        // Logic
         pagerAdapter.addFragment(OnboardingScreenStartFragment())
         pagerAdapter.addFragment(OnboardingCreateAccountFragment())
+        pagerAdapter.addFragment(OnboardingConnectFragment())
+        pagerAdapter.addFragment(OnboardingSaveForLaterFragment())
+
         viewPager.adapter = pagerAdapter
 
         wormDotsIndicator.attachTo(viewPager)
 
+        viewModel.setViewPager(viewPager)
         viewModel.progress.observe(this) { newValue ->
             animateProgressOfCircularProgressIndicator(circularProgressIndicator, newValue)
         }
@@ -47,6 +56,7 @@ class OnboardingActivity : AppCompatActivity() {
                 currentPage = position
             }
         })
+
 
     }
 

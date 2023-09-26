@@ -2,4 +2,13 @@
     <string name="app_name">SyncPeerApp</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="onboarding_presentation_text">Say goodbye to buffering, latency, and bandwidth constraints. \nWith SyncPeer, you are in control of your live streaming experience, empowered by direct peer-to-peer connections.</string>
+    <string name="go">Go</string>
+    <string name="create_account">Create Account</string>
+    <string name="createAccountParagraph">Seamless account creation: \n Quick and hassle-free signup process awaits you</string>
+    <string name="connect">Connect</string>
+    <string name="connectParagraphText">Connect instantly: \nEmpower smooth peer-to-peer communication effortlessly.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="saveForLaterParagraph">Save for later</string>
+    <string name="capture_and_store_streams_for_future_viewing">Capture and store streams for future viewing.</string>
 </resources>
