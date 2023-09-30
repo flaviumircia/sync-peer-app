@@ -2,9 +2,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+        <import type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.syncpeer.syncpeerapp.onboarding.viewmodels.OnboardingScreenActivityViewModel" />
+
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -51,7 +53,7 @@
                 android:gravity="center"
                 app:cornerRadius="50dp"
                 app:fabSize="normal"
-                android:onClick="@{()->viewModel.changeFragmentOnButtonClick()}"
+                android:onClick="@{()->viewModel.increasePosition()}"
                 />
 
             <TextView
@@ -59,10 +61,10 @@
                 style="@style/ButtonTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="16dp"
-                android:textColor="@color/light_blue"
                 android:layout_centerInParent="true"
-                android:text="@string/go" />
+                android:elevation="16dp"
+                android:text="@string/go"
+                android:textColor="@color/light_blue" />
 
         </RelativeLayout>
         <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator

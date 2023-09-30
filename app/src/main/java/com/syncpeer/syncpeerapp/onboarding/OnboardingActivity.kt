@@ -2,7 +2,9 @@ package com.syncpeer.syncpeerapp.onboarding
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -10,6 +12,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.onboarding.adapters.ViewPagerAdapter
+import com.syncpeer.syncpeerapp.onboarding.adapters.setButtonIcon
+import com.syncpeer.syncpeerapp.onboarding.adapters.setVisibility
 import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingConnectFragment
 import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingCreateAccountFragment
 import com.syncpeer.syncpeerapp.onboarding.fragments.OnboardingSaveForLaterFragment
@@ -41,11 +45,9 @@ class OnboardingActivity : AppCompatActivity() {
 
         wormDotsIndicator.attachTo(viewPager)
 
-        viewModel.setViewPager(viewPager)
         viewModel.progress.observe(this) { newValue ->
             animateProgressOfCircularProgressIndicator(circularProgressIndicator, newValue)
         }
-
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             private var currentPage = 0
             private val numberOfFragments = pagerAdapter.itemCount
@@ -53,6 +55,13 @@ class OnboardingActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 isPageStateChanged(viewModel, position, currentPage, numberOfFragments)
+                if (position==numberOfFragments-1){
+                    setVisibility(findViewById(R.id.goText),false)
+                    setButtonIcon(findViewById(R.id.goButton),R.drawable.check_icon)
+                }
+                else{
+                    setButtonIcon(findViewById(R.id.goButton),0)
+                    setVisibility(findViewById(R.id.goText),true)}
                 currentPage = position
             }
         })
