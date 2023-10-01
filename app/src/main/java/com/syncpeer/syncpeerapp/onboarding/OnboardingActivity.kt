@@ -2,9 +2,7 @@ package com.syncpeer.syncpeerapp.onboarding
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -31,6 +29,8 @@ class OnboardingActivity : AppCompatActivity() {
         val wormDotsIndicator = findViewById<WormDotsIndicator>(R.id.worm_dots_indicator)
         val circularProgressIndicator =
             findViewById<CircularProgressIndicator>(R.id.circular_progress)
+        val goButton = findViewById<MaterialButton>(R.id.goButton)
+
         // ViewModels
         val pagerAdapter = ViewPagerAdapter(this)
         val viewModel = ViewModelProvider(this)[OnboardingScreenActivityViewModel::class.java]
@@ -48,6 +48,16 @@ class OnboardingActivity : AppCompatActivity() {
         viewModel.progress.observe(this) { newValue ->
             animateProgressOfCircularProgressIndicator(circularProgressIndicator, newValue)
         }
+
+        goButton.setOnClickListener {
+            val currentItem = viewPager.currentItem
+            val nextItem = currentItem + 1
+
+            // Check if the next fragment index is within bounds
+            if (nextItem < pagerAdapter.itemCount) {
+                viewPager.currentItem = nextItem
+            }
+        }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             private var currentPage = 0
             private val numberOfFragments = pagerAdapter.itemCount
@@ -55,17 +65,16 @@ class OnboardingActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 isPageStateChanged(viewModel, position, currentPage, numberOfFragments)
-                if (position==numberOfFragments-1){
-                    setVisibility(findViewById(R.id.goText),false)
-                    setButtonIcon(findViewById(R.id.goButton),R.drawable.check_icon)
+                if (position == numberOfFragments - 1) {
+                    setVisibility(findViewById(R.id.goText), false)
+                    setButtonIcon(findViewById(R.id.goButton), R.drawable.check_icon)
+                } else {
+                    setButtonIcon(findViewById(R.id.goButton), 0)
+                    setVisibility(findViewById(R.id.goText), true)
                 }
-                else{
-                    setButtonIcon(findViewById(R.id.goButton),0)
-                    setVisibility(findViewById(R.id.goText),true)}
                 currentPage = position
             }
         })
-
 
     }
 

@@ -6,7 +6,6 @@
         <variable
             name="viewModel"
             type="com.syncpeer.syncpeerapp.onboarding.viewmodels.OnboardingScreenActivityViewModel" />
-
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -53,7 +52,6 @@
                 android:gravity="center"
                 app:cornerRadius="50dp"
                 app:fabSize="normal"
-                android:onClick="@{()->viewModel.increasePosition()}"
                 />
 
             <TextView
