@@ -1,5 +1,6 @@
 package com.syncpeer.syncpeerapp.onboarding.viewmodels
 
+import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +10,7 @@ class OnboardingScreenActivityViewModel: ViewModel() {
 
     private val _progress = MutableLiveData<Int>()
     val progress : LiveData<Int> = _progress
-    var position: Int = 0;
+
     init {
         _progress.value = 25
     }
@@ -23,7 +24,5 @@ class OnboardingScreenActivityViewModel: ViewModel() {
         val currentValue = _progress.value?: 25;
         _progress.value = currentValue - 100 / numberOfFragments
     }
-
-
 
 }
