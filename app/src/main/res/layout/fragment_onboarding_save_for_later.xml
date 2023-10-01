@@ -14,27 +14,31 @@
         <TextView
             android:id="@+id/saveForLaterTitleText"
             style="@style/OnboardingTitleText"
-            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:gravity="center_horizontal"
             android:text="@string/saveForLaterParagraph"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
         <TextView
             android:id="@+id/saveForLaterParagraphText"
+            style="@style/OnboardingParagraphText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="@string/capture_and_store_streams_for_future_viewing"
             android:gravity="center_horizontal"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
+            android:text="@string/capture_and_store_streams_for_future_viewing"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/saveForLaterTitleText"
-            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="@+id/saveForLaterTitleText"
             app:layout_constraintTop_toBottomOf="@+id/saveForLaterTitleText"
             app:layout_constraintVertical_bias="0.0" />

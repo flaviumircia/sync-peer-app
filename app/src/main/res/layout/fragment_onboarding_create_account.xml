@@ -14,27 +14,29 @@
         <TextView
             android:id="@+id/createAccountTitleText"
             style="@style/OnboardingTitleText"
-            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="150dp"
+            android:gravity="center_horizontal"
             android:text="@string/create_account"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
         <TextView
             android:id="@+id/createAccountParagraphText"
+            style="@style/OnboardingParagraphText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="@string/createAccountParagraph"
             android:gravity="center_horizontal"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
+            android:text="@string/createAccountParagraph"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/createAccountTitleText"
-            app:layout_constraintHorizontal_bias="0.495"
             app:layout_constraintStart_toStartOf="@+id/createAccountTitleText"
             app:layout_constraintTop_toBottomOf="@+id/createAccountTitleText"
             app:layout_constraintVertical_bias="0.0" />
