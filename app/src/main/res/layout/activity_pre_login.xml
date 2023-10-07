@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".onboarding.PreLoginActivity">
+
+    <TextView
+        android:id="@+id/preLoginTextTitle"
+        style="@style/OnboardingTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/preLoginTextTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.442"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.557" />
+
+    <TextView
+        android:id="@+id/preLoginParagraphText"
+        style="@style/OnboardingParagraphText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="@string/preLoginParagraphText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/preLoginTextTitle"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/preLoginTextTitle"
+        app:layout_constraintTop_toBottomOf="@+id/preLoginTextTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <nl.bryanderidder.themedtogglebuttongroup.ThemedToggleButtonGroup
+        android:id="@+id/time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:justifyContent="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/preLoginTextTitle"
+        app:layout_constraintStart_toStartOf="@+id/preLoginTextTitle"
+        app:layout_constraintTop_toBottomOf="@+id/preLoginParagraphText"
+        app:layout_constraintVertical_bias="0.25"> <!-- this attribute is from the underlying FlexboxLayout -->
+
+        <nl.bryanderidder.themedtogglebuttongroup.ThemedButton
+            android:id="@+id/btn1"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            app:toggle_btnCornerRadius="15dp"
+            app:toggle_selectedBackgroundColor="@color/light_blue"
+            app:toggle_selectedTextColor="@android:color/white"
+            app:toggle_text="@string/connect"
+            app:toggle_textGravity="center"
+            app:toggle_textPaddingLeft="30dp"
+            app:toggle_textPaddingRight="30dp" />
+
+        <nl.bryanderidder.themedtogglebuttongroup.ThemedButton
+            android:id="@+id/btn2"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            app:toggle_btnCornerRadius="15dp"
+            app:toggle_selectedBackgroundColor="@color/light_blue"
+            app:toggle_selectedTextColor="@android:color/white"
+            app:toggle_text="@string/register"
+            app:toggle_textGravity="center"
+            app:toggle_textPaddingLeft="30dp"
+            app:toggle_textPaddingRight="30dp" />
+    </nl.bryanderidder.themedtogglebuttongroup.ThemedToggleButtonGroup>
+</androidx.constraintlayout.widget.ConstraintLayout>

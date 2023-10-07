@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/toggle_left"
+        android:title="@string/connect" />
+
+    <item
+        android:id="@+id/toggle_center"
+        android:title="@string/register" />
+
+</menu>

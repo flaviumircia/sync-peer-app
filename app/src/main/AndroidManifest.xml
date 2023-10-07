@@ -12,6 +12,9 @@
         android:theme="@style/Theme.SyncPeerApp"
         tools:targetApi="31">
         <activity
+            android:name=".onboarding.PreLoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".onboarding.OnboardingActivity"
             android:exported="false" />
         <activity

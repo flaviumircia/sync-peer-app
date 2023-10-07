@@ -10,5 +10,8 @@
         Conectează-te rapid: Bazează-te pe o \nconexiune, solidă, peer-to-peer.</string>
     <string name="saveForLaterParagraph">Salvează fluxul pentru mai târziu</string>
     <string name="capture_and_store_streams_for_future_viewing">Poți înregistra și salva fluxurile \npentru mai târziu!</string>
+    <string name="preLoginTextTitle">Sincronizează-te cu ceilalți:\n Ușor, fără bătăi de cap</string>
+    <string name="preLoginParagraphText">Ne bucurăm împreună de valul transmisiunilor live!\nConectează-te sau înregistrează-te pentru a începe!</string>
+    <string name="register">Înregistrează-te</string>
 
 </resources>

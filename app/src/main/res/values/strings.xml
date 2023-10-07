@@ -11,4 +11,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="saveForLaterParagraph">Save for later</string>
     <string name="capture_and_store_streams_for_future_viewing">Capture and store streams for future viewing.</string>
+    <string name="preLoginTextTitle">Sync with Peers:\nSeamless and Reliable</string>
+    <string name="preLoginParagraphText">Let\'s ride the wave of live streaming together!\nConnect or register to get started!</string>
+    <string name="register">Register</string>
 </resources>

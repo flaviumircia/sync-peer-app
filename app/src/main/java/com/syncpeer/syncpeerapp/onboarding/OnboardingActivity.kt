@@ -1,6 +1,7 @@
 package com.syncpeer.syncpeerapp.onboarding
 
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.os.Bundle
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
@@ -56,6 +57,9 @@ class OnboardingActivity : AppCompatActivity() {
             // Check if the next fragment index is within bounds
             if (nextItem < pagerAdapter.itemCount) {
                 viewPager.currentItem = nextItem
+            }else{
+                val intent = Intent(this,PreLoginActivity::class.java)
+                startActivity(intent)
             }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
