@@ -13,5 +13,12 @@
     <string name="preLoginTextTitle">Sincronizează-te cu ceilalți:\n Ușor, fără bătăi de cap</string>
     <string name="preLoginParagraphText">Ne bucurăm împreună de valul transmisiunilor live!\nConectează-te sau înregistrează-te pentru a începe!</string>
     <string name="register">Înregistrează-te</string>
+    <string name="create_your_account">Crează-ți contul</string>
+    <string name="e_mail_address">Adresa de mail</string>
+    <string name="your_password">Parola ta</string>
+    <string name="confirm_password">Confirmă parola</string>
+    <string name="tc">Ești de acord cu termenii și condițiile?</string>
+    <string name="forgot_password">Ți-ai uitat parola?</string>
+    <string name="welcome_back_n_you_have_been_missed">Bine ai revenit,\nNe-ai lipsit!</string>
 
 </resources>

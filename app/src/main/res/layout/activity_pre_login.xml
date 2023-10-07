@@ -45,7 +45,7 @@
         app:layout_constraintVertical_bias="0.25"> <!-- this attribute is from the underlying FlexboxLayout -->
 
         <nl.bryanderidder.themedtogglebuttongroup.ThemedButton
-            android:id="@+id/btn1"
+            android:id="@+id/connectButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             app:toggle_btnCornerRadius="15dp"
@@ -57,7 +57,7 @@
             app:toggle_textPaddingRight="30dp" />
 
         <nl.bryanderidder.themedtogglebuttongroup.ThemedButton
-            android:id="@+id/btn2"
+            android:id="@+id/registerButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             app:toggle_btnCornerRadius="15dp"

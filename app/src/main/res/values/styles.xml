@@ -8,8 +8,14 @@
         <item name="android:fontFamily">@font/montserrat_bold</item>
         <item name="android:textSize">@dimen/text_large_size</item>
     </style>
+    <style name="BigWelcomeText">
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">@dimen/text_extra_large_size</item>
+
+    </style>
     <style name="ButtonTextStyle">
         <item name="android:fontFamily">@font/montserrat_bold</item>
         <item name="android:textSize">@dimen/text_large_size</item>
     </style>
+
 </resources>

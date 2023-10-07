@@ -14,4 +14,11 @@
     <string name="preLoginTextTitle">Sync with Peers:\nSeamless and Reliable</string>
     <string name="preLoginParagraphText">Let\'s ride the wave of live streaming together!\nConnect or register to get started!</string>
     <string name="register">Register</string>
+    <string name="create_your_account">Create Your Account</string>
+    <string name="e_mail_address">E-mail address</string>
+    <string name="your_password">Your password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="tc">Do you agree with our Terms and Conditions?</string>
+    <string name="forgot_password">Forgot your password?</string>
+    <string name="welcome_back_n_you_have_been_missed">Welcome Back,\nYou have been missed!</string>
 </resources>
