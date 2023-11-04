@@ -20,5 +20,13 @@
     <string name="tc">Ești de acord cu termenii și condițiile?</string>
     <string name="forgot_password">Ți-ai uitat parola?</string>
     <string name="welcome_back_n_you_have_been_missed">Bine ai revenit,\nNe-ai lipsit!</string>
+    <string name="first_name">Prenumele</string>
+    <string name="last_name">Numele de familie</string>
+    <string name="wrong_email_or_password">E-mail sau parolă greșită!</string>
+    <string name="error_the_e_mail_is_already_registered">Eroare: Adresa de e-mail este deja înregistrată!</string>
+    <string name="there_is_a_network_error_please_check_your_connection_and_try_again">Este o problemă la realizarea conexiunii cu server-ul! Vă rugăm verificați conexiunea la internet și încercați iar!</string>
+    <string name="passwords_don_t_match">Parolele nu se potrivesc!</string>
+    <string name="the_e_mail_address_is_not_valid">Adresa de e-mail nu este validă!</string>
+    <string name="passwords_should_match_and_have_at_least_10_characters">Parolele trebuie să fie identice, minimum 10 caractere!</string>
 
 </resources>

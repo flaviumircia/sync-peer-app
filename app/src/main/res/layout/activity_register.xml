@@ -2,16 +2,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="android.view.View"/>
+        <variable
+            name="viewModelRegister"
+            type="com.syncpeer.syncpeerapp.auth.viewmodels.RegisterViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".auth.LoginActivity">
+        tools:context=".auth.RegisterActivity">
 
         <TextView
-            android:id="@+id/createAccountTitle"
+            android:id="@+id/createAccountTitleRegister"
             style="@style/BigWelcomeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +30,7 @@
             app:layout_constraintVertical_bias="0.028" />
 
         <EditText
-            android:id="@+id/loginEmailAddress"
+            android:id="@+id/registerEmailAddress"
             style="@style/OnboardingParagraphText"
             android:layout_width="0dp"
             android:layout_height="48dp"
@@ -40,34 +42,39 @@
             android:inputType="textEmailAddress"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
+            android:text="@={viewModelRegister.emailEditText}"
+            app:error="@{viewModelRegister.emailError}"
+            android:focusable="auto"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/createAccountTitle"
-            app:layout_constraintTop_toBottomOf="@+id/createAccountTitle"
+            app:layout_constraintStart_toStartOf="@+id/lastNameEditText"
+            app:layout_constraintTop_toBottomOf="@+id/lastNameEditText"
             app:layout_constraintVertical_bias="0.0" />
 
         <EditText
-            android:id="@+id/loginPasswordEditText"
+            android:id="@+id/registerPasswordEditText"
+            style="@style/OnboardingParagraphText"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="40dp"
+            android:background="@drawable/round_rectangle"
+            android:ems="10"
+            android:hint="@string/your_password"
+            android:text="@={viewModelRegister.passwordEditText}"
+            app:error="@{viewModelRegister.passwordError}"
+            android:inputType="textPassword"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-
-            android:ems="10"
-            android:background="@drawable/round_rectangle"
-            style="@style/OnboardingParagraphText"
-            android:hint="@string/your_password"
-            android:inputType="textPassword"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/loginEmailAddress"
-            app:layout_constraintStart_toStartOf="@+id/loginEmailAddress"
-            app:layout_constraintTop_toBottomOf="@+id/loginEmailAddress"
+            app:layout_constraintEnd_toEndOf="@+id/registerEmailAddress"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/registerEmailAddress"
+            app:layout_constraintTop_toBottomOf="@+id/registerEmailAddress"
             app:layout_constraintVertical_bias="0.0" />
 
         <EditText
@@ -76,26 +83,28 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="40dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/black"
-
             android:background="@drawable/round_rectangle"
             android:ems="10"
             android:hint="@string/confirm_password"
+            android:text="@={viewModelRegister.confirmPasswordEditText}"
+            app:error="@{viewModelRegister.passwordError}"
             android:inputType="textPassword"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/loginPasswordEditText"
+            app:layout_constraintEnd_toEndOf="@+id/registerPasswordEditText"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/loginPasswordEditText"
-            app:layout_constraintTop_toBottomOf="@+id/loginPasswordEditText"
+            app:layout_constraintStart_toStartOf="@+id/registerPasswordEditText"
+            app:layout_constraintTop_toBottomOf="@+id/registerPasswordEditText"
             app:layout_constraintVertical_bias="0.0" />
 
         <CheckBox
             android:id="@+id/termsAndConditionsTextBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="@={viewModelRegister.hasAcceptedTOS}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/confirmPasswordRegisterEditText"
             app:layout_constraintHorizontal_bias="0.0"
@@ -123,6 +132,7 @@
             android:layout_height="48dp"
             app:backgroundTint="@color/light_blue"
             android:text="@string/register"
+            android:onClick="@{()->viewModelRegister.register()}"
             android:textColor="@color/white"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -131,6 +141,52 @@
             app:layout_constraintStart_toStartOf="@+id/termsAndConditionsTextBox"
             app:layout_constraintTop_toBottomOf="@+id/termsAndConditionsTextView"
             app:layout_constraintVertical_bias="0.252" />
+
+        <EditText
+            android:id="@+id/lastNameEditText"
+            style="@style/OnboardingParagraphText"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/round_rectangle"
+            android:ems="10"
+            android:hint="@string/last_name"
+            android:inputType="text"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:text="@={viewModelRegister.lastNameEditText}"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/firstNameEditText"
+            app:layout_constraintTop_toBottomOf="@+id/firstNameEditText"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <EditText
+            android:id="@+id/firstNameEditText"
+            style="@style/OnboardingParagraphText"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/round_rectangle"
+            android:ems="10"
+            android:hint="@string/first_name"
+            android:inputType="text"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:text="@={viewModelRegister.firstNameEditText}"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/createAccountTitleRegister"
+            app:layout_constraintTop_toBottomOf="@+id/createAccountTitleRegister"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
