@@ -27,7 +27,7 @@ class LoginActivity : AppCompatActivity() {
             Constants.JWT_FILE_NAME
         ).getSharedPreferences()
 
-        sharedPreference.edit().putString(Constants.SHARED_PREFERENCES_JWT_NAME, jwt)
+        sharedPreference.edit().putString(Constants.SHARED_PREFERENCES_JWT_NAME, jwt).apply()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

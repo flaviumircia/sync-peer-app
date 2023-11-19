@@ -7,7 +7,6 @@ plugins {
 android {
     namespace 'com.syncpeer.syncpeerapp'
     compileSdk 34
-
     defaultConfig {
         applicationId "com.syncpeer.syncpeerapp"
         minSdk 24
@@ -18,10 +17,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     flavorDimensions "environment"
+
     productFlavors {
         dev {
             dimension "environment"
-            buildConfigField "String","AUTH_API",'"http://localhost:8080/"'
+            buildConfigField "String","AUTH_API",'"http://192.168.1.138:8080/"'
+            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.43.60:8090/gs-guide-websocket"'
+            buildConfigField "String","SIGNALING_SERVER_STOMP_SEND", '"/app/offer/sendOffer"'
+            buildConfigField "String","SIGNALING_SERVER_STOMP_RECEIVE", '"/app/receive/receiveOffer"'
+
         }
         prod {
             dimension "environment"
@@ -36,25 +40,46 @@ android {
     }
     buildFeatures{
         dataBinding true
+        compose true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.4"
+    }
+
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "17"
     }
 }
 
 dependencies {
+    def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
+    implementation composeBom
+    androidTestImplementation composeBom
+
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.tbuonomo:dotsindicator:4.3'
     implementation 'nl.bryanderidder:themed-toggle-button-group:1.4.1'
-    implementation 'androidx.core:core-ktx:+'
+    implementation 'androidx.core:core-ktx:1.12.0'
+
+    // Compose UI toolkit
+    implementation 'androidx.compose.ui:ui:1.5.4'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.activity:activity-compose:1.8.1'
+    // Android Studio Preview support
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+
+    // UI Tests
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
@@ -62,6 +87,8 @@ dependencies {
     // for the JWT store
     implementation "androidx.security:security-crypto-ktx:1.1.0-alpha06"
 
+    // Java webSocket for managing websocket connection
+    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
