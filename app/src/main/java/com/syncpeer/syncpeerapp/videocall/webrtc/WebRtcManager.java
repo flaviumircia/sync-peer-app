@@ -4,14 +4,15 @@ package com.syncpeer.syncpeerapp.videocall.webrtc;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.Gson;
 import com.syncpeer.syncpeerapp.BuildConfig;
-import com.syncpeer.syncpeerapp.utils.JsonSerializer;
+import com.syncpeer.syncpeerapp.videocall.utils.SdpDTO;
 
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
-import org.webrtc.SurfaceTextureHelper;
-import org.webrtc.VideoCapturer;
 import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
@@ -19,13 +20,13 @@ import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.SessionDescription;
+import org.webrtc.SurfaceTextureHelper;
+import org.webrtc.VideoCapturer;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WebRtcManager {
 
@@ -44,11 +45,16 @@ public class WebRtcManager {
     }
 
     public void initializeWebRTC() {
-        PeerConnectionFactory.initialize(
-                PeerConnectionFactory.InitializationOptions.builder(context)
-                        .createInitializationOptions()
-        );
+
+        VideoSource videoSource = null;
+
+        PeerConnectionFactory
+                .initialize(PeerConnectionFactory
+                            .InitializationOptions.builder(context)
+                            .createInitializationOptions());
+
         peerConnectionFactory = PeerConnectionFactory.builder().createPeerConnectionFactory();
+
 
         List<PeerConnection.IceServer> iceServers = new ArrayList<>();
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
@@ -105,56 +111,71 @@ public class WebRtcManager {
                 super.onRenegotiationNeeded();
             }
         });
+
         VideoCapturer videoCapturer = createVideoCapturer();
-        assert videoCapturer != null;
-        VideoSource videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+
+        if (videoCapturer != null)
+            videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
 
         VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
 
-        assert peerConnection != null;
-        peerConnection.addTrack(localVideoTrack);
+        if (peerConnection != null) {
 
-        // Create an offer and set it as local description
-        peerConnection.createOffer(new CustomSdpObserver("createOffer") {
+            peerConnection.addTrack(localVideoTrack);
+
+            CustomSdpObserver customSdpObserver = getCustomSdpObserver(peerConnection);
+
+            // Create an offer and set it as local description
+            peerConnection.createOffer(customSdpObserver, new MediaConstraints());
+        }
+
+    }
+
+    @NonNull
+    private CustomSdpObserver getCustomSdpObserver(PeerConnection peerConnection) {
+        return new CustomSdpObserver("createOffer") {
             @Override
             public void onCreateSuccess(SessionDescription sessionDescription) {
                 super.onCreateSuccess(sessionDescription);
 
                 // Set local description
                 peerConnection.setLocalDescription(new CustomSdpObserver("setLocalDesc"), sessionDescription);
-
-                // Convert SDP offer/answer to JSON or string
-                String sdpString = sessionDescription.description;
-
+                Gson gsonObjectMapper = new Gson();
 
                 // Send SDP offer/answer via WebSocket
                 if (webSocket != null) {
                     webSocket.connectToServer();
                     if (isCaller) {
-                        Map<String, String> jsonMap = new HashMap<>();
-                        jsonMap.put("type", "offer");
-                        jsonMap.put("id", "5");
-                        jsonMap.put("sdp", sdpString);
-                        String sdpSession = JsonSerializer.mapToString(jsonMap);
-                        Log.d("WebRTCManager", "onCreateSuccess: " + sdpSession);
-                        webSocket.subscribe(BuildConfig.SIGNALING_SERVER_OFFER_SDP_TOPIC);
-                        webSocket.send(sdpSession, BuildConfig.SIGNALING_SERVER_STOMP_SEND);
+                        sendSdpSession("offer",
+                                5L,
+                                sessionDescription,
+                                gsonObjectMapper,
+                                BuildConfig.SIGNALING_SERVER_OFFER_SDP_TOPIC,
+                                BuildConfig.SIGNALING_SERVER_STOMP_SEND);
                     } else {
-                        Map<String, String> jsonMap = new HashMap<>();
-                        jsonMap.put("type", "answer");
-                        jsonMap.put("id", "5");
-                        jsonMap.put("sdp", sdpString);
-                        String sdpSession = JsonSerializer.mapToString(jsonMap);
-                        Log.d("WebRTCManager", "onCreateSuccess: " + sdpSession);
-                        webSocket.subscribe(BuildConfig.SIGNALING_SERVER_ANSWER_SDP_TOPIC);
-                        webSocket.send(sdpSession, BuildConfig.SIGNALING_SERVER_STOMP_RECEIVE);
+                        sendSdpSession("answer",
+                                5L,
+                                sessionDescription,
+                                gsonObjectMapper,
+                                BuildConfig.SIGNALING_SERVER_ANSWER_SDP_TOPIC,
+                                BuildConfig.SIGNALING_SERVER_STOMP_RECEIVE);
                     }
 
                 }
 
             }
-        }, new MediaConstraints());
+        };
+    }
 
+    private void sendSdpSession(String offer,Long id, SessionDescription sessionDescription, Gson gsonObjectMapper, String signalingServerOfferSdpTopic, String signalingServerStompSend) {
+
+        SdpDTO sdpOffer = new SdpDTO(offer, id, sessionDescription.description);
+        String sdpSession = gsonObjectMapper.toJson(sdpOffer);
+
+        Log.d("WebRTCManager", "onCreateSuccess: " + sdpSession);
+
+        webSocket.subscribe(signalingServerOfferSdpTopic);
+        webSocket.send(sdpSession, signalingServerStompSend);
     }
 //    public void initializeWebRTC(Context context) {
 //        // Create and initialize PeerConnectionFactory

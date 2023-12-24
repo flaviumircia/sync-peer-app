@@ -1,6 +1,7 @@
 package com.syncpeer.syncpeerapp.videocall.webrtc
 
-import com.syncpeer.syncpeerapp.videocall.callback.MessageHolder
+import com.syncpeer.syncpeerapp.BuildConfig
+import com.syncpeer.syncpeerapp.videocall.utils.MessageHolder
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -17,10 +18,8 @@ class WebSocketClient(uri: String) {
             }
 
             override fun onMessage(message: String) {
-
-                // Handle received messages here
                 println("Received message: $message")
-                MessageHolder.isCaller = !message.contains("{\"type\":\"offer\"")
+                MessageHolder.isCaller = !message.contains("destination:${BuildConfig.SIGNALING_SERVER_OFFER_SDP_TOPIC}")
 
             }
 

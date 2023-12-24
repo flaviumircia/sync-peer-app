@@ -1,9 +1,7 @@
 package com.syncpeer.syncpeerapp.videocall
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Message
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +22,7 @@ import com.syncpeer.syncpeerapp.BuildConfig
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
 import com.syncpeer.syncpeerapp.auth.utils.InstantiateJwtSharedPreference
-import com.syncpeer.syncpeerapp.videocall.callback.MessageHolder
+import com.syncpeer.syncpeerapp.videocall.utils.MessageHolder
 import com.syncpeer.syncpeerapp.videocall.webrtc.WebRtcManager
 import com.syncpeer.syncpeerapp.videocall.webrtc.WebSocketClient
 import kotlinx.coroutines.*
