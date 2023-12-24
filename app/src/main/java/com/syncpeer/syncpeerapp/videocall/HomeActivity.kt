@@ -1,7 +1,9 @@
 package com.syncpeer.syncpeerapp.videocall
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Message
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,10 +24,21 @@ import com.syncpeer.syncpeerapp.BuildConfig
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
 import com.syncpeer.syncpeerapp.auth.utils.InstantiateJwtSharedPreference
-import com.syncpeer.syncpeerapp.videocall.websocket.WebSocketClient
+import com.syncpeer.syncpeerapp.videocall.callback.MessageHolder
+import com.syncpeer.syncpeerapp.videocall.webrtc.WebRtcManager
+import com.syncpeer.syncpeerapp.videocall.webrtc.WebSocketClient
+import kotlinx.coroutines.*
+
 
 class HomeActivity : AppCompatActivity() {
-    private var webSocketClient:WebSocketClient? = null
+    private var webSocketClient: WebSocketClient? = null
+    private var isCaller = true;
+    private val scope = CoroutineScope(Dispatchers.Default) // Create a CoroutineScope
+
+    init{
+        observeMessageChanges()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -34,11 +47,22 @@ class HomeActivity : AppCompatActivity() {
         val tempJWT = sharedPreferences.getString(Constants.SHARED_PREFERENCES_JWT_NAME, null)
         this.webSocketClient = WebSocketClient(BuildConfig.SIGNALING_SERVER)
 
-        setContent {
+    setContent {
             MainScreen()
         }
     }
-
+    private fun observeMessageChanges(){
+        //TODO: Draw the schema for the logic of send/receive SDP exchange
+        scope.launch {
+            while (isActive) {
+                delay(500)
+                if(!MessageHolder.isCaller){
+                    val webRtcManager = WebRtcManager(applicationContext,webSocketClient,false)
+                    webRtcManager.initializeWebRTC()
+                }
+            }
+        }
+    }
     @Composable
     @Preview
     fun MainScreen() {
@@ -50,9 +74,8 @@ class HomeActivity : AppCompatActivity() {
             Button(
                 onClick = {
                     // Usage:
-                    webSocketClient?.connectToServer()
-                    webSocketClient?.send("{\"name\":\"test\"}","/app/hello")
-
+                    val webRtcManager = WebRtcManager(applicationContext,webSocketClient,true)
+                    webRtcManager.initializeWebRTC()
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,
@@ -62,11 +85,13 @@ class HomeActivity : AppCompatActivity() {
                     .fillMaxWidth()
                     .padding(
                         start = 40.dp,
-                        end = 40.dp)
+                        end = 40.dp
+                    )
                     .height(40.dp),
             ) {
                 Text(text = "Call!")
             }
         }
     }
+
 }

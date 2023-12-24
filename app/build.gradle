@@ -21,10 +21,12 @@ android {
     productFlavors {
         dev {
             dimension "environment"
-            buildConfigField "String","AUTH_API",'"http://192.168.1.138:8080/"'
-            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.43.60:8090/gs-guide-websocket"'
+            buildConfigField "String","AUTH_API",'"http://192.168.1.192:8080/"'
+            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.192:8090/ws"'
             buildConfigField "String","SIGNALING_SERVER_STOMP_SEND", '"/app/offer/sendOffer"'
-            buildConfigField "String","SIGNALING_SERVER_STOMP_RECEIVE", '"/app/receive/receiveOffer"'
+            buildConfigField "String","SIGNALING_SERVER_STOMP_RECEIVE", '"/app/receive/sendAnswer"'
+            buildConfigField ("String","SIGNALING_SERVER_OFFER_SDP_TOPIC",'"/topic/offers"')
+            buildConfigField ("String","SIGNALING_SERVER_ANSWER_SDP_TOPIC",'"/topic/answers"')
 
         }
         prod {
@@ -89,6 +91,9 @@ dependencies {
 
     // Java webSocket for managing websocket connection
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+
+    // WebRTC
+    implementation 'com.dafruits:webrtc:119.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
