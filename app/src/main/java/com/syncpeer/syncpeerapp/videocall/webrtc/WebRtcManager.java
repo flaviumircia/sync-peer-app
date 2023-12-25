@@ -5,12 +5,11 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.syncpeer.syncpeerapp.BuildConfig;
-import com.syncpeer.syncpeerapp.videocall.utils.MessageHolder;
-import com.syncpeer.syncpeerapp.videocall.utils.SdpDTO;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -55,17 +54,19 @@ public class WebRtcManager {
 
     public void initializeWebRTC() {
 
-        VideoSource videoSource = null;
         var rootEglBase = EglBase.create();
-        PeerConnectionFactory.InitializationOptions initializationOptions =
-                PeerConnectionFactory.InitializationOptions.builder(context)
-                        .createInitializationOptions();
-
-        PeerConnectionFactory.initialize(initializationOptions);
-        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+        VideoSource videoSource = null;
 
         VideoEncoderFactory encoderFactory = new DefaultVideoEncoderFactory(rootEglBase.getEglBaseContext(), true, true);
         VideoDecoderFactory decoderFactory = new DefaultVideoDecoderFactory(rootEglBase.getEglBaseContext());
+
+        PeerConnectionFactory.InitializationOptions initializationOptions = PeerConnectionFactory
+                .InitializationOptions
+                .builder(context)
+                .createInitializationOptions();
+
+        PeerConnectionFactory.initialize(initializationOptions);
+        PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
@@ -78,7 +79,53 @@ public class WebRtcManager {
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer());
 
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
-        PeerConnection peerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, new CustomPeerConnectionObserver() {
+        PeerConnection peerConnection = getWebRTCManager(rtcConfig);
+
+        VideoCapturer videoCapturer = createVideoCapturer();
+
+        if (videoCapturer != null)
+            videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+
+        VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
+
+        if (peerConnection != null) {
+            peerConnection.addTrack(localVideoTrack);
+
+            try {
+                PeerConnection remotePeerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, new CustomPeerConnectionObserver());
+                this.webSocket = getWebSocket(remotePeerConnection, peerConnection);
+            } catch (URISyntaxException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Create an offer and set it as local description
+            peerConnection.createOffer(new CustomSdpObserver("OFFER") {
+                @Override
+                public void onCreateFailure(String s) {
+                    super.onCreateFailure(s);
+                    Log.d("CreateOffer", "onCreateFailure: " + s);
+                }
+
+                @Override
+                public void onCreateSuccess(SessionDescription sessionDescription) {
+                    super.onCreateSuccess(sessionDescription);
+                    // Set local description
+                    peerConnection.setLocalDescription(new CustomSdpObserver("setLocalDesc"), sessionDescription);
+                    // Send SDP offer/answer via WebSocket
+                    sendSdpSession(
+                            5L,
+                            sessionDescription,
+                            BuildConfig.SIGNALING_SERVER_OFFER_SDP_TOPIC,
+                            BuildConfig.SIGNALING_SERVER_STOMP_SEND);
+                }
+            }, new MediaConstraints());
+        }
+
+    }
+
+    @Nullable
+    private PeerConnection getWebRTCManager(PeerConnection.RTCConfiguration rtcConfig) {
+        return peerConnectionFactory.createPeerConnection(rtcConfig, new CustomPeerConnectionObserver() {
             @Override
             public void onSignalingChange(PeerConnection.SignalingState signalingState) {
                 super.onSignalingChange(signalingState);
@@ -131,51 +178,10 @@ public class WebRtcManager {
                 super.onRenegotiationNeeded();
             }
         });
-
-
-        VideoCapturer videoCapturer = createVideoCapturer();
-        if (videoCapturer != null)
-            videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-
-        VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
-
-        if (peerConnection != null) {
-            peerConnection.addTrack(localVideoTrack);
-
-            try {
-                PeerConnection second = peerConnectionFactory.createPeerConnection(rtcConfig, new CustomPeerConnectionObserver() {});
-                this.webSocket = getWebSocket(second);
-
-            } catch (URISyntaxException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            // Create an offer and set it as local description
-            peerConnection.createOffer(new CustomSdpObserver("OFFER") {
-                   @Override
-                   public void onCreateFailure(String s) {
-                       super.onCreateFailure(s);
-                       Log.d("CreateOffer", "onCreateFailure: " + s);
-                   }
-
-                   @Override
-                   public void onCreateSuccess(SessionDescription sessionDescription) {
-                       super.onCreateSuccess(sessionDescription);
-                       // Set local description
-                       peerConnection.setLocalDescription(new CustomSdpObserver("setLocalDesc"), sessionDescription);
-                       // Send SDP offer/answer via WebSocket
-                       sendSdpSession(
-                               5L,
-                               sessionDescription,
-                               BuildConfig.SIGNALING_SERVER_OFFER_SDP_TOPIC,
-                               BuildConfig.SIGNALING_SERVER_STOMP_SEND);
-                   }
-                }, new MediaConstraints());
-        }
-
     }
 
     private void sendAnswer(PeerConnection peerConnection, SessionDescription remote) {
+
         SessionDescription remoteOfferSessionDescription = new SessionDescription(SessionDescription.Type.OFFER, remote.description);
         peerConnection.setRemoteDescription(new CustomSdpObserver("setRemoteDesc") {
             @Override
@@ -210,13 +216,12 @@ public class WebRtcManager {
             public void onSetFailure(String s) {
                 super.onSetFailure(s);
                 Log.d("Remote", "onSetFailure: " + s);
-                // Handle failure to set remote description
             }
         }, remoteOfferSessionDescription);
     }
 
     @NonNull
-    private WebSocketClient getWebSocket(PeerConnection peerConnection) throws URISyntaxException, InterruptedException {
+    private WebSocketClient getWebSocket(PeerConnection remotePeerConnection, PeerConnection localPeerConnection) throws URISyntaxException, InterruptedException {
         var web = new WebSocketClient(new URI(BuildConfig.SIGNALING_SERVER)) {
             @Override
             public void onOpen(ServerHandshake handshakedata) {
@@ -226,20 +231,16 @@ public class WebRtcManager {
 
             @Override
             public void onMessage(String message) {
-                if (message.contains("OFFER")) {
-                    Gson gson = new Gson();
-                    try {
-                        // Create a JsonReader with lenient mode
-                        JsonReader reader = new JsonReader(new StringReader(message.split("\n\n")[1].replace("\u0000", "")));
-                        reader.setLenient(true);
-                        sendAnswer(peerConnection,gson.fromJson(reader, SessionDescription.class));
 
-                    }
-                    catch (Exception e){
-                        Log.e("TAG", "onMessage: ", e);
-                    }
-                    MessageHolder.isCaller = false;
-                }
+                Gson gson = new Gson();
+                JsonReader reader = new JsonReader(new StringReader(message.split("\n\n")[1].replace("\u0000", "")));
+                reader.setLenient(true);
+
+                if (message.contains("OFFER"))
+                    sendAnswer(remotePeerConnection, gson.fromJson(reader, SessionDescription.class));
+                else if (message.contains("ANSWER"))
+                    localPeerConnection.setRemoteDescription(new CustomSdpObserver("setSenderAnswer"), gson.fromJson(reader, SessionDescription.class));
+
             }
 
             @Override
@@ -259,7 +260,6 @@ public class WebRtcManager {
     private void sendSdpSession(Long id, SessionDescription sessionDescription, String signalingServerOfferSdpTopic, String signalingServerStompSend) {
         Gson gsonObjectMapper = new Gson();
 
-        SdpDTO sdpOffer = new SdpDTO(sessionDescription);
         String sdpSession = gsonObjectMapper.toJson(sessionDescription);
 
         Log.d("WebRTCManager", "onCreateSuccess: " + sdpSession);
@@ -267,22 +267,7 @@ public class WebRtcManager {
         WebSocketOperations.Companion.subscribe(webSocket, signalingServerOfferSdpTopic);
         WebSocketOperations.Companion.send(webSocket, sdpSession, signalingServerStompSend);
     }
-//    public void initializeWebRTC(Context context) {
-//        // Create and initialize PeerConnectionFactory
-//        PeerConnectionFactory.initialize(PeerConnectionFactory.InitializationOptions.builder(context).createInitializationOptions());
-//        peerConnectionFactory = PeerConnectionFactory.builder().createPeerConnectionFactory();
-//
-//        // Create and initialize video capturer (for example, camera)
-//        videoCapturer = createVideoCapturer();
-//
-//        // Create video source
-//        EglBase.Context eglContext = EglBase.create().getEglBaseContext();
-//        videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-//
-//
-//        // Create video track
-//        localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
-//    }
+
 
     // Method to create video capturer (camera)
     private VideoCapturer createVideoCapturer() {
@@ -334,7 +319,6 @@ public class WebRtcManager {
             public void onCameraClosed() {
 
             }
-
 
             // Implement capturer observer methods as needed
         });
