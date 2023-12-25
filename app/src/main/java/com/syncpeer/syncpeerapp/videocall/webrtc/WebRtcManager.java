@@ -45,7 +45,7 @@ public class WebRtcManager {
     private VideoCapturer videoCapturer;
     private VideoSource videoSource;
     private VideoTrack localVideoTrack;
-    private Context context;
+    private final Context context;
     private WebSocketClient webSocket;
 
     public WebRtcManager(Context context) {
@@ -54,12 +54,8 @@ public class WebRtcManager {
 
     public void initializeWebRTC() {
 
-        var rootEglBase = EglBase.create();
         VideoSource videoSource = null;
-
-        VideoEncoderFactory encoderFactory = new DefaultVideoEncoderFactory(rootEglBase.getEglBaseContext(), true, true);
-        VideoDecoderFactory decoderFactory = new DefaultVideoDecoderFactory(rootEglBase.getEglBaseContext());
-
+        var rootEglBase = EglBase.create();
         PeerConnectionFactory.InitializationOptions initializationOptions = PeerConnectionFactory
                 .InitializationOptions
                 .builder(context)
@@ -67,6 +63,9 @@ public class WebRtcManager {
 
         PeerConnectionFactory.initialize(initializationOptions);
         PeerConnectionFactory.Options options = new PeerConnectionFactory.Options();
+
+        VideoEncoderFactory encoderFactory = new DefaultVideoEncoderFactory(rootEglBase.getEglBaseContext(), true, true);
+        VideoDecoderFactory decoderFactory = new DefaultVideoDecoderFactory(rootEglBase.getEglBaseContext());
 
         peerConnectionFactory = PeerConnectionFactory.builder()
                 .setOptions(options)
