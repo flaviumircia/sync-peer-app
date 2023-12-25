@@ -17,48 +17,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.syncpeer.syncpeerapp.BuildConfig
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
 import com.syncpeer.syncpeerapp.auth.utils.InstantiateJwtSharedPreference
-import com.syncpeer.syncpeerapp.videocall.utils.MessageHolder
 import com.syncpeer.syncpeerapp.videocall.webrtc.WebRtcManager
-import com.syncpeer.syncpeerapp.videocall.webrtc.WebSocketClient
 import kotlinx.coroutines.*
 
 
 class HomeActivity : AppCompatActivity() {
-    private var webSocketClient: WebSocketClient? = null
-    private var isCaller = true;
-    private val scope = CoroutineScope(Dispatchers.Default) // Create a CoroutineScope
-
-    init{
-        observeMessageChanges()
-    }
-
+    private var webRtcManager: WebRtcManager? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         val sharedPreferences =
             InstantiateJwtSharedPreference(this, Constants.JWT_FILE_NAME).getSharedPreferences()
         val tempJWT = sharedPreferences.getString(Constants.SHARED_PREFERENCES_JWT_NAME, null)
-        this.webSocketClient = WebSocketClient(BuildConfig.SIGNALING_SERVER)
+        webRtcManager = WebRtcManager(applicationContext)
 
     setContent {
             MainScreen()
-        }
-    }
-    private fun observeMessageChanges(){
-        //TODO: Draw the schema for the logic of send/receive SDP exchange
-        scope.launch {
-            while (isActive) {
-                delay(500)
-                if(!MessageHolder.isCaller){
-                    val webRtcManager = WebRtcManager(applicationContext,webSocketClient,false)
-                    webRtcManager.initializeWebRTC()
-                }
-            }
         }
     }
     @Composable
@@ -71,9 +50,7 @@ class HomeActivity : AppCompatActivity() {
         ) {
             Button(
                 onClick = {
-                    // Usage:
-                    val webRtcManager = WebRtcManager(applicationContext,webSocketClient,true)
-                    webRtcManager.initializeWebRTC()
+                    webRtcManager?.initializeWebRTC()
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,

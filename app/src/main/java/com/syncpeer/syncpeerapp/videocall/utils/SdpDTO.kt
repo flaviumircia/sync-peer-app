@@ -1,3 +1,5 @@
 package com.syncpeer.syncpeerapp.videocall.utils
 
-data class SdpDTO(val type: String, val id: Long, val sdpContent: String)
+import org.webrtc.SessionDescription
+
+data class SdpDTO(val sdpContent: SessionDescription)
