@@ -32,7 +32,6 @@ class LoginViewModel : ViewModel() {
                     )
                 )
                 if (response.isSuccessful) {
-
                     loginResponseLiveData.postValue(response.body())
                     jwt.postValue(response.body()?.token)
                 } else {

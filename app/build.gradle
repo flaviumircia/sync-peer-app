@@ -23,10 +23,11 @@ android {
             dimension "environment"
             buildConfigField "String","AUTH_API",'"http://192.168.1.192:8080/"'
             buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.192:8090/ws"'
-            buildConfigField "String","SIGNALING_SERVER_STOMP_SEND", '"/app/offer/sendOffer"'
-            buildConfigField "String","SIGNALING_SERVER_STOMP_RECEIVE", '"/app/receive/sendAnswer"'
+            buildConfigField "String","SIGNALING_SERVER_SEND_ENDPOINT",'"/app/offer/send"'
+            buildConfigField "String","OFFER",'"Offer"'
+            buildConfigField "String","ICE_OFFER",'"IceOffer"'
+            buildConfigField ("String","SIGNALING_SERVER_SEND_ICE_TOPIC",'"/topic/iceCandidates"')
             buildConfigField ("String","SIGNALING_SERVER_OFFER_SDP_TOPIC",'"/topic/offers"')
-            buildConfigField ("String","SIGNALING_SERVER_ANSWER_SDP_TOPIC",'"/topic/answers"')
 
         }
         prod {
@@ -89,6 +90,10 @@ dependencies {
 
     // for the JWT store
     implementation "androidx.security:security-crypto-ktx:1.1.0-alpha06"
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2' // If you want to use Jackson for JSON processing
+
 
     // Java webSocket for managing websocket connection
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
