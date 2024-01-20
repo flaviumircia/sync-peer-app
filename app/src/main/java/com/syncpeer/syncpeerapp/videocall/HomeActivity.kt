@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
 import com.syncpeer.syncpeerapp.videocall.webrtc.PeerToPeerConnectionEstablishment
+import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.DestinationEmailMediator
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -40,17 +41,18 @@ class HomeActivity : AppCompatActivity() {
             .getSharedPreferences(Constants.USER_EMAIL, MODE_PRIVATE)
             .getString(Constants.USER_EMAIL, null)
 
-        peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(applicationContext, email)
-        peerToPeerConnectionEstablishment?.initializeWebRTC()
+        peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(
+            applicationContext,
+            email,
+            DestinationEmailMediator(),
+        )
 
         val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-        if(!email.equals("test_d@gmail.com")){
-            val task = Runnable {
-                peerToPeerConnectionEstablishment?.startTheExchangeTo("test_d@gmail.com")
-            }
-            val future = executor.scheduleAtFixedRate(task,3,5,TimeUnit.SECONDS)
-
+        val task = Runnable {
+            peerToPeerConnectionEstablishment?.initializePeerConnections()
         }
+        val future = executor.scheduleAtFixedRate(task,0,5,TimeUnit.SECONDS)
+
 
     setContent {
             MainScreen()
@@ -75,8 +77,7 @@ class HomeActivity : AppCompatActivity() {
             )
             Button(
                 onClick = {
-
-                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend)
+                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend,"test_d@gmail.com")
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,
@@ -90,7 +91,7 @@ class HomeActivity : AppCompatActivity() {
                     )
                     .height(40.dp),
             ) {
-                Text(text = "Send Message to Peer!")
+                Text(text = "Send Message to Peer test_d@gmail.com!")
             }
         }
     }
