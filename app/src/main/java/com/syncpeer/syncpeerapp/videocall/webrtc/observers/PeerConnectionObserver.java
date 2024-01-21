@@ -3,6 +3,7 @@ package com.syncpeer.syncpeerapp.videocall.webrtc.observers;
 import android.util.Log;
 
 import com.syncpeer.syncpeerapp.videocall.webrtc.events.MessageEvent;
+import com.syncpeer.syncpeerapp.videocall.webrtc.events.OnRenegotiationEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.webrtc.DataChannel;
@@ -107,6 +108,7 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
     @Override
     public void onRenegotiationNeeded() {
         Log.d(TAG, "onRenegotiationNeeded");
+        EventBus.getDefault().post(new OnRenegotiationEvent(true));
     }
 
 

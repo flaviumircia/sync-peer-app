@@ -39,19 +39,22 @@ import java.util.concurrent.TimeUnit
 
 class VideoCallActivity : AppCompatActivity() {
     private var peerToPeerConnectionEstablishment: PeerToPeerConnectionEstablishment? = null
-    private var destinationMail: String? = null
+    private lateinit var sendingText:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_call)
+
         val email = applicationContext
             .getSharedPreferences(Constants.USER_EMAIL, MODE_PRIVATE)
             .getString(Constants.USER_EMAIL, null)
 
-        this.destinationMail = intent.getStringExtra("destination_mail")
+        val destinationMail = intent.getStringExtra("destination_mail")
+        this.sendingText = "Send Message to Peer $destinationMail"
 
         peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(
             applicationContext,
             email,
+            destinationMail,
             DestinationEmailMediator(),
         )
 
@@ -87,10 +90,7 @@ class VideoCallActivity : AppCompatActivity() {
             )
             Button(
                 onClick = {
-                    peerToPeerConnectionEstablishment?.sendMessageToPeer(
-                        messageToSend,
-                        destinationMail
-                    )
+                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend)
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,
@@ -104,15 +104,17 @@ class VideoCallActivity : AppCompatActivity() {
                     )
                     .height(40.dp),
             ) {
-                Text(text = "Send Message to Peer $destinationMail")
+                Text(text = sendingText)
             }
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun onMessageEvent(event: MessageEvent) {
         val message = event.message
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun unregister() {
@@ -122,5 +124,6 @@ class VideoCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         this.unregister()
+        peerToPeerConnectionEstablishment?.unregister()
     }
 }

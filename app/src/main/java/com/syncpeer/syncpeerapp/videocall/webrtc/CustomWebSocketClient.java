@@ -27,17 +27,15 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
     private PeerConnection peerConnection;
     private PeerConnection remotePeerConnection;
     private Gson gson;
-    private boolean isCaller;
     private String iceTopicSubscribeUrl;
 
-    public CustomWebSocketClient(URI serverUri, String tag, Boolean isCaller, String iceTopicSubscribeUrl, DestinationEmailMediator destinationEmailMediator) {
+    public CustomWebSocketClient(URI serverUri, String tag, String iceTopicSubscribeUrl, DestinationEmailMediator destinationEmailMediator) {
         super(serverUri);
         this.TAG = tag;
         this.iceTopicSubscribeUrl = iceTopicSubscribeUrl;
         this.destinationEmailMediator = destinationEmailMediator;
         this.destinationEmailMediator.registerComponent(this);
         this.gson = new Gson();
-        this.isCaller = isCaller;
     }
 
     @Override
@@ -61,12 +59,9 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
         }
         if (message.contains(iceTopicSubscribeUrl)) {
             IceCandidateDto iceCandidateDto = gson.fromJson(reader, IceCandidateDto.class);
-            PeerConnection connection = isCaller ? peerConnection : remotePeerConnection;
-            String connectionType = isCaller ? "LocalPeerConnection" : "RemotePeerConnection";
-            if (connection != null)
-                connection.addIceCandidate(
-                        iceCandidateDto.getIceCandidate(),
-                        new AddIceObserver(connectionType, iceCandidateDto));
+            remotePeerConnection.addIceCandidate(
+                    iceCandidateDto.getIceCandidate(),
+                    new AddIceObserver("RemotePeerConnection", iceCandidateDto));
         }
 
     }
