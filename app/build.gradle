@@ -21,8 +21,8 @@ android {
     productFlavors {
         dev {
             dimension "environment"
-            buildConfigField "String","AUTH_API",'"http://192.168.1.192:8080/"'
-            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.192:8090/ws"'
+            buildConfigField "String","AUTH_API",'"http://192.168.1.138:8080/"'
+            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.138:8090/ws"'
             buildConfigField "String","SIGNALING_SERVER_SEND_ENDPOINT",'"/app/offer/send"'
             buildConfigField "String","OFFER",'"Offer"'
             buildConfigField "String","ICE_OFFER",'"IceOffer"'
@@ -97,6 +97,9 @@ dependencies {
 
     // Java webSocket for managing websocket connection
     implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+
+    //messageBroker
+    implementation 'org.greenrobot:eventbus:3.2.0' // Use the latest version
 
     // WebRTC
     implementation 'com.dafruits:webrtc:119.0.0'
