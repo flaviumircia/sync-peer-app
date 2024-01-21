@@ -1,7 +1,12 @@
 package com.syncpeer.syncpeerapp.videocall.webrtc.observers;
 
 import android.util.Log;
+import android.widget.Toast;
 
+import com.syncpeer.syncpeerapp.videocall.webrtc.events.MessageEvent;
+import com.syncpeer.syncpeerapp.videocall.webrtc.events.OnRenegotiationEvent;
+
+import org.greenrobot.eventbus.EventBus;
 import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
@@ -9,7 +14,11 @@ import org.webrtc.PeerConnection;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PeerConnectionObserver implements PeerConnection.Observer {
 
@@ -80,7 +89,6 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
                 if (dataChannel.state().equals(DataChannel.State.OPEN)) {
 
                     Log.d("DataChannelRemotePeer", "onMessage: ");
-
                     if (buffer.binary) {
                         // Handle binary data if needed
                         ByteBuffer data = buffer.data;
@@ -94,7 +102,7 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
                         data.get(bytes);
                         String message = new String(bytes, StandardCharsets.UTF_8);
                         Log.d("DataChannelRemotePeer", "Received text message: " + message);
-                        // Process the received text message
+                        EventBus.getDefault().post(new MessageEvent(message));
                     }
                 }
 
@@ -106,4 +114,6 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
     public void onRenegotiationNeeded() {
         Log.d(TAG, "onRenegotiationNeeded");
     }
+
+
 }

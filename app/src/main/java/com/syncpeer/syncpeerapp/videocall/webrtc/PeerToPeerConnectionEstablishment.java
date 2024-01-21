@@ -13,6 +13,9 @@ import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationManager;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationMediator;
 import com.syncpeer.syncpeerapp.videocall.webrtc.senders.OfferSender;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
@@ -70,7 +73,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         this.peerConnectionFactory = initializePeerConnectionFactory(context);
         this.renegotiationManager = new RenegotiationManager();
         this.renegotiationManager.registerComponent(this);
-         this.messages = new LinkedList<>();
+        this.messages = new LinkedList<>();
 
         this.webSocket = new CustomWebSocketClient(new URI(BuildConfig.SIGNALING_SERVER),
                 "WebSocketClient",
@@ -109,16 +112,21 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
 
 
     public void initializePeerConnections() {
-
         List<PeerConnection.IceServer> iceServers = new ArrayList<>(
                 List.of(
                         PeerConnection
                                 .IceServer
                                 .builder("stun:stun.l.google.com:19302")
                                 .createIceServer()
-                ));
+                        ,
+                        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:443")
+                                .setUsername("054e5048508b70f98dbbc7ba")
+                                .setPassword("GKhoYikRKw1jg1s5")
+                                .createIceServer()
 
-        //TODO: Check if destineationEmailMediator.get is null when calling the ice candidate
+                )
+        );
+
         PeerConnection.RTCConfiguration rtcConfig = new PeerConnection.RTCConfiguration(iceServers);
 
         Log.d("SHARED", "initializeWebRTC: " + destinationEmailMediator.getDestinationEmailShared());
@@ -163,6 +171,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         messages.offer(message);
 
         var executor = Executors.newScheduledThreadPool(1);
+
         var renegotiateTask = new Runnable() {
             @Override
             public void run() {
@@ -174,10 +183,9 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
                 }
             }
         };
-        var callback = executor.scheduleAtFixedRate(renegotiateTask,0,2, TimeUnit.SECONDS);
+        var callback = executor.scheduleAtFixedRate(renegotiateTask,0,4, TimeUnit.SECONDS);
 
     }
-
     private void sendMessageViaDataChannel(String message){
         dataChannel.registerObserver(new DataChannel.Observer() {
 
@@ -272,6 +280,5 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     public void updateStatus(Boolean status) {
         Log.d(TAG, "updateStatus: " + status);
     }
-    // Other methods for managing WebRTC components
 }
 
