@@ -23,12 +23,12 @@ import java.net.URI;
 
 public class CustomWebSocketClient extends WebSocketClient implements Component {
     private final String TAG;
+    private final DestinationEmailMediator destinationEmailMediator;
     private PeerConnection peerConnection;
     private PeerConnection remotePeerConnection;
     private Gson gson;
     private boolean isCaller;
     private String iceTopicSubscribeUrl;
-    private final DestinationEmailMediator destinationEmailMediator;
 
     public CustomWebSocketClient(URI serverUri, String tag, Boolean isCaller, String iceTopicSubscribeUrl, DestinationEmailMediator destinationEmailMediator) {
         super(serverUri);
@@ -50,12 +50,12 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
 
     @Override
     public void onMessage(String message) {
-        Log.d(TAG , "onMessage: " + message);
+        Log.d(TAG, "onMessage: " + message);
         var reader = parseIncomingMessages(message);
-        if (message.contains("OFFER") && remotePeerConnection!=null) {
-            sendAnswer(remotePeerConnection, gson.fromJson(reader, SdpOfferDto.class),this);
+        if (message.contains("OFFER") && remotePeerConnection != null) {
+            sendAnswer(remotePeerConnection, gson.fromJson(reader, SdpOfferDto.class), this);
         }
-        if (message.contains("ANSWER") && peerConnection!=null) {
+        if (message.contains("ANSWER") && peerConnection != null) {
             SdpOfferDto temp = gson.fromJson(reader, SdpOfferDto.class);
             peerConnection.setRemoteDescription(new SessionDescriptionObserver("setSenderAnswer"), temp.getSdpMessage());
         }
@@ -63,7 +63,7 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
             IceCandidateDto iceCandidateDto = gson.fromJson(reader, IceCandidateDto.class);
             PeerConnection connection = isCaller ? peerConnection : remotePeerConnection;
             String connectionType = isCaller ? "LocalPeerConnection" : "RemotePeerConnection";
-            if(connection!=null)
+            if (connection != null)
                 connection.addIceCandidate(
                         iceCandidateDto.getIceCandidate(),
                         new AddIceObserver(connectionType, iceCandidateDto));
@@ -80,6 +80,7 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
     public void onError(Exception ex) {
 
     }
+
     private void sendAnswer(PeerConnection remotePeer, SdpOfferDto remote, WebSocketClient webSocket) {
         destinationEmailMediator.setDestinationEmailShared(remote.getSource());
         remotePeer.setRemoteDescription(new SessionDescriptionObserver("RemotePeerConnectionSetRemoteDescription") {
@@ -110,6 +111,7 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
 
 
     }
+
     private JsonReader parseIncomingMessages(String message) {
 
         JsonReader reader = new JsonReader(

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,16 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
@@ -37,7 +33,7 @@ class HomeActivity : AppCompatActivity() {
         val email = applicationContext
             .getSharedPreferences(Constants.USER_EMAIL, MODE_PRIVATE)
             .getString(Constants.USER_EMAIL, null)
-         val listOfUsers = listOf(
+        val listOfUsers = listOf(
             SelectUserDto(
                 0,
                 "test_d@gmail.com",
@@ -72,7 +68,7 @@ class HomeActivity : AppCompatActivity() {
 
     @Composable
     fun allUsers(userList: List<SelectUserDto>) {
-        Scaffold (  bottomBar = {}){
+        Scaffold(bottomBar = {}) {
             it.calculateBottomPadding()
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -101,7 +97,7 @@ class HomeActivity : AppCompatActivity() {
                         image = user.imageRes,
                         onClick = {
                             val intent = Intent(this@HomeActivity, VideoCallActivity::class.java)
-                            intent.putExtra("destination_mail",user.name)
+                            intent.putExtra("destination_mail", user.name)
                             startActivity(intent)
                         })
 

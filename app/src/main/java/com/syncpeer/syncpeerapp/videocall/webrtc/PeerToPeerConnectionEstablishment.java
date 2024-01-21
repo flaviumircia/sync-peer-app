@@ -4,7 +4,6 @@ package com.syncpeer.syncpeerapp.videocall.webrtc;
 import android.content.Context;
 import android.util.Log;
 
-
 import com.google.gson.Gson;
 import com.syncpeer.syncpeerapp.BuildConfig;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.Component;
@@ -13,9 +12,6 @@ import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationManager;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationMediator;
 import com.syncpeer.syncpeerapp.videocall.webrtc.senders.OfferSender;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
@@ -40,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +43,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     private final PeerConnectionFactory peerConnectionFactory;
     private final String TAG = "PeerToPeerConnectionEstablishment";
     private final Context context;
+    private final DestinationEmailMediator destinationEmailMediator;
     private VideoCapturer videoCapturer;
     private VideoSource videoSource;
     private VideoTrack localVideoTrack;
@@ -59,7 +55,6 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     private PeerConnection remotePeerConnection;
     private DataChannel dataChannel;
     private Gson gson;
-    private final DestinationEmailMediator destinationEmailMediator;
     private RenegotiationManager renegotiationManager;
     private Deque<String> messages;
 
@@ -159,7 +154,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
 
     }
 
-    public void sendMessageToPeer(String message,String destinationEmail) {
+    public void sendMessageToPeer(String message, String destinationEmail) {
         //TODO: This isCaller thing is very buggy change logic
         isCaller = true;
         //TODO: Check why on hotspot the messages never reach the other phone
@@ -175,18 +170,19 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         var renegotiateTask = new Runnable() {
             @Override
             public void run() {
-                OfferSender.createAndSendOffer(webSocket,peerConnection,destinationEmail,email);
+                OfferSender.createAndSendOffer(webSocket, peerConnection, destinationEmail, email);
                 sendMessageViaDataChannel(messages.peek());
 
-                if(messages.isEmpty()){
+                if (messages.isEmpty()) {
                     executor.shutdown();
                 }
             }
         };
-        var callback = executor.scheduleAtFixedRate(renegotiateTask,0,4, TimeUnit.SECONDS);
+        var callback = executor.scheduleAtFixedRate(renegotiateTask, 0, 4, TimeUnit.SECONDS);
 
     }
-    private void sendMessageViaDataChannel(String message){
+
+    private void sendMessageViaDataChannel(String message) {
         dataChannel.registerObserver(new DataChannel.Observer() {
 
             @Override
@@ -211,8 +207,6 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
             }
         });
     }
-
-
 
 
     // Method to create video capturer (camera)

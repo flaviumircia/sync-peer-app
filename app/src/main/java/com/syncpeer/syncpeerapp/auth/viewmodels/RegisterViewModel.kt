@@ -1,7 +1,6 @@
 package com.syncpeer.syncpeerapp.auth.viewmodels
 
 import android.util.Log
-import android.widget.EditText
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,46 +34,48 @@ class RegisterViewModel : ViewModel() {
     lateinit var apiService: ApiService
 
     fun register() {
-            var isFailure = false
+        var isFailure = false
 
-            if(!FormValidator.checkEmail(emailEditText.get().toString()))
-            {
-                emailError.postValue(ResourceProvider.getString(R.string.the_e_mail_address_is_not_valid))
-                isFailure = true
-            }
+        if (!FormValidator.checkEmail(emailEditText.get().toString())) {
+            emailError.postValue(ResourceProvider.getString(R.string.the_e_mail_address_is_not_valid))
+            isFailure = true
+        }
 
-            if(!FormValidator.checkPassword(passwordEditText.get().toString(), confirmPasswordEditText.get().toString()))
-            {
-                passwordError.postValue(ResourceProvider.getString(R.string.passwords_should_match_and_have_at_least_10_characters))
-                isFailure = true
-            }
+        if (!FormValidator.checkPassword(
+                passwordEditText.get().toString(),
+                confirmPasswordEditText.get().toString()
+            )
+        ) {
+            passwordError.postValue(ResourceProvider.getString(R.string.passwords_should_match_and_have_at_least_10_characters))
+            isFailure = true
+        }
 
-            if(isFailure)
-                return
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    Log.d("RegisterViewModel",emailEditText.get().toString())
-                    val response = apiService.registerUser(
-                        AuthRequestResponse.RegisterRequest(
-                            firstNameEditText.get().toString(),
-                            lastNameEditText.get().toString(),
-                            emailEditText.get().toString(),
-                            passwordEditText.get().toString()
+        if (isFailure)
+            return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Log.d("RegisterViewModel", emailEditText.get().toString())
+                val response = apiService.registerUser(
+                    AuthRequestResponse.RegisterRequest(
+                        firstNameEditText.get().toString(),
+                        lastNameEditText.get().toString(),
+                        emailEditText.get().toString(),
+                        passwordEditText.get().toString()
 
-                        )
                     )
-                    if (response.isSuccessful) {
-                        registerResponseLiveData.postValue(response.body())
-                        jwt.postValue(response.body()?.token)
-                    } else {
-                        jwt.postValue("")
-                        isAlreadyTaken.postValue(response.body()?.isAlreadyTaken)
-                    }
-
-                } catch (e: Exception) {
-                    hasNetworkFailed.postValue(true)
+                )
+                if (response.isSuccessful) {
+                    registerResponseLiveData.postValue(response.body())
+                    jwt.postValue(response.body()?.token)
+                } else {
+                    jwt.postValue("")
+                    isAlreadyTaken.postValue(response.body()?.isAlreadyTaken)
                 }
+
+            } catch (e: Exception) {
+                hasNetworkFailed.postValue(true)
             }
+        }
     }
 
 }

@@ -17,7 +17,8 @@ public class WebRtcSender {
     public WebRtcSender(PeerConnection peerConnection) {
         this.peerConnection = peerConnection;
     }
-    public void sendOffer(String destinationMail, String email, WebSocketClient webSocket){
+
+    public void sendOffer(String destinationMail, String email, WebSocketClient webSocket) {
         peerConnection.createOffer(new SessionDescriptionObserver("CreateOffer") {
             @Override
             public void onCreateSuccess(SessionDescription sessionDescription) {

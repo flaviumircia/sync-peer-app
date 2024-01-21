@@ -1,7 +1,5 @@
 package com.syncpeer.syncpeerapp.auth.utils
 
-import java.util.regex.Pattern
-
 object Constants {
     const val JWT_FILE_NAME = "jwts"
     const val USER_EMAIL = "user_email"

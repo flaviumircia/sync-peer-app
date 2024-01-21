@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit
 
 class VideoCallActivity : AppCompatActivity() {
     private var peerToPeerConnectionEstablishment: PeerToPeerConnectionEstablishment? = null
-    private var destinationMail: String ?=null
+    private var destinationMail: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_call)
@@ -59,7 +59,7 @@ class VideoCallActivity : AppCompatActivity() {
         val task = Runnable {
             peerToPeerConnectionEstablishment?.initializePeerConnections()
         }
-        val future = executor.scheduleAtFixedRate(task,0,5, TimeUnit.SECONDS)
+        val future = executor.scheduleAtFixedRate(task, 0, 5, TimeUnit.SECONDS)
 
         EventBus.getDefault().register(this);
 
@@ -67,6 +67,7 @@ class VideoCallActivity : AppCompatActivity() {
             MainScreen()
         }
     }
+
     @Composable
     @Preview
     fun MainScreen() {
@@ -86,7 +87,10 @@ class VideoCallActivity : AppCompatActivity() {
             )
             Button(
                 onClick = {
-                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend,destinationMail)
+                    peerToPeerConnectionEstablishment?.sendMessageToPeer(
+                        messageToSend,
+                        destinationMail
+                    )
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,
@@ -108,11 +112,13 @@ class VideoCallActivity : AppCompatActivity() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(event: MessageEvent) {
         val message = event.message
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show()
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
+
     private fun unregister() {
         EventBus.getDefault().unregister(this)
     }
+
     override fun onDestroy() {
         super.onDestroy()
         this.unregister()

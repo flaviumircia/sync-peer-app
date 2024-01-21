@@ -57,8 +57,8 @@ class OnboardingActivity : AppCompatActivity() {
             // Check if the next fragment index is within bounds
             if (nextItem < pagerAdapter.itemCount) {
                 viewPager.currentItem = nextItem
-            }else{
-                val intent = Intent(this,PreLoginActivity::class.java)
+            } else {
+                val intent = Intent(this, PreLoginActivity::class.java)
                 startActivity(intent)
             }
         }

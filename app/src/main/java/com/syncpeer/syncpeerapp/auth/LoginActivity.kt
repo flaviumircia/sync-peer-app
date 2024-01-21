@@ -3,11 +3,10 @@ package com.syncpeer.syncpeerapp.auth
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.syncpeer.syncpeerapp.BuildConfig
@@ -33,11 +32,12 @@ class LoginActivity : AppCompatActivity() {
 
         getSharedPreferences(Constants.USER_EMAIL, Context.MODE_PRIVATE)
             .edit()
-            .putString(Constants.USER_EMAIL,decodePayloadJwt(jwt))
+            .putString(Constants.USER_EMAIL, decodePayloadJwt(jwt))
             .apply()
 
         sharedPreference.edit().putString(Constants.SHARED_PREFERENCES_JWT_NAME, jwt).apply()
     }
+
     private fun decodePayloadJwt(jwt: String): String? {
 
         // Decode the JWT
@@ -45,11 +45,12 @@ class LoginActivity : AppCompatActivity() {
         val jwtPayload = jwtParts[1]
 
         // Decode the JWT payload (Base64)
-        val decodedBytes = Base64.decode(jwtPayload,Base64.DEFAULT)
+        val decodedBytes = Base64.decode(jwtPayload, Base64.DEFAULT)
         val decodedString = String(decodedBytes)
         val jsonObject = JSONObject(decodedString)
         return jsonObject.optString("sub")
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login)
@@ -85,7 +86,6 @@ class LoginActivity : AppCompatActivity() {
                         getString(R.string.wrong_email_or_password),
                         Toast.LENGTH_SHORT
                     ).show()
-
                 else {
                     storeJwtToSharedPreference(this, it)
                     val intent = Intent(this, HomeActivity::class.java)

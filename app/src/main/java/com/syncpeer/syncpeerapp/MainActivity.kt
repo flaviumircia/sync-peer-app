@@ -1,8 +1,8 @@
 package com.syncpeer.syncpeerapp
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.syncpeer.syncpeerapp.onboarding.OnboardingActivity
 
 class MainActivity : AppCompatActivity() {

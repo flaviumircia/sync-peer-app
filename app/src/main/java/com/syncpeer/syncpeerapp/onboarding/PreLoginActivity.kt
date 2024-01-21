@@ -1,8 +1,8 @@
 package com.syncpeer.syncpeerapp.onboarding
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.LoginActivity
 import com.syncpeer.syncpeerapp.auth.RegisterActivity
@@ -21,7 +21,7 @@ class PreLoginActivity : AppCompatActivity() {
         }
 
         registerButton.setOnClickListener {
-            startActivity(Intent(this,RegisterActivity::class.java))
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 }

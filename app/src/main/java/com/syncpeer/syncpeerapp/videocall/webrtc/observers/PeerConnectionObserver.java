@@ -1,10 +1,8 @@
 package com.syncpeer.syncpeerapp.videocall.webrtc.observers;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.syncpeer.syncpeerapp.videocall.webrtc.events.MessageEvent;
-import com.syncpeer.syncpeerapp.videocall.webrtc.events.OnRenegotiationEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.webrtc.DataChannel;
@@ -14,17 +12,13 @@ import org.webrtc.PeerConnection;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 
 public class PeerConnectionObserver implements PeerConnection.Observer {
 
     private String TAG;
 
-    public PeerConnectionObserver(String tag){
+    public PeerConnectionObserver(String tag) {
         this.TAG = tag;
     }
 

@@ -13,10 +13,10 @@ import com.syncpeer.syncpeerapp.R
 fun setButtonIcon(button: MaterialButton, iconResId: Int) {
     val context = button.context
 
-    val iconDrawable = if(iconResId!=0)
-            AppCompatResources.getDrawable(context, iconResId)
-        else
-            null
+    val iconDrawable = if (iconResId != 0)
+        AppCompatResources.getDrawable(context, iconResId)
+    else
+        null
 
     button.icon = iconDrawable
 

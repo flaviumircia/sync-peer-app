@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun UserCard(name: String, lastMessage: String, image:Int, onClick: () -> Unit){
+fun UserCard(name: String, lastMessage: String, image: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .padding(10.dp)
@@ -29,7 +29,7 @@ fun UserCard(name: String, lastMessage: String, image:Int, onClick: () -> Unit){
             .clickable { onClick.invoke() },
         shape = MaterialTheme.shapes.medium,
     ) {
-        Row (verticalAlignment = Alignment.CenterVertically){
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = image),
                 contentDescription = null,
@@ -41,7 +41,8 @@ fun UserCard(name: String, lastMessage: String, image:Int, onClick: () -> Unit){
             Column(
                 Modifier.padding(8.dp)
             ) {
-                Text(text = name,
+                Text(
+                    text = name,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )

@@ -3,7 +3,6 @@ package com.syncpeer.syncpeerapp.videocall.webrtc.senders;
 import com.google.gson.Gson;
 import com.syncpeer.syncpeerapp.BuildConfig;
 import com.syncpeer.syncpeerapp.videocall.utils.SdpOfferDto;
-import com.syncpeer.syncpeerapp.videocall.webrtc.WebRtcSender;
 import com.syncpeer.syncpeerapp.videocall.webrtc.WebSocketOperations;
 import com.syncpeer.syncpeerapp.videocall.webrtc.observers.SessionDescriptionObserver;
 

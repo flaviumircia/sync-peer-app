@@ -11,9 +11,9 @@ class WebSocketOperations {
             val stompSendFrame =
                 "SEND\ndestination:${destination}\ncontent-type:application/json\n\n${jsonMessage}\u0000"
             Log.d("WebSocketOperations", "send: " + webSocketClient.readyState);
-            if(webSocketClient.readyState.equals(ReadyState.OPEN))
+            if (webSocketClient.readyState.equals(ReadyState.OPEN))
                 webSocketClient.send(stompSendFrame)
-            else if(webSocketClient.readyState.equals(ReadyState.CLOSED)){
+            else if (webSocketClient.readyState.equals(ReadyState.CLOSED)) {
                 webSocketClient.reconnectBlocking()
             }
 
@@ -22,9 +22,9 @@ class WebSocketOperations {
         fun subscribe(webSocketClient: WebSocketClient, topicName: String) {
 
             val stompSubscribeFrame = "SUBSCRIBE\nid:0\ndestination:${topicName}\n\n\u0000"
-            if(webSocketClient.readyState.equals(ReadyState.OPEN))
+            if (webSocketClient.readyState.equals(ReadyState.OPEN))
                 webSocketClient.send(stompSubscribeFrame)
-            else if(webSocketClient.readyState.equals(ReadyState.CLOSED)){
+            else if (webSocketClient.readyState.equals(ReadyState.CLOSED)) {
                 webSocketClient.reconnectBlocking()
             }
         }

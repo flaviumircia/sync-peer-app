@@ -100,6 +100,7 @@ public class PeerConnectionCreator implements RenegotiationMediator {
         });
 
     }
+
     public void sendIceCandidate(IceCandidate iceCandidate) {
         var gson = new Gson();
         if (senderEmail != null && receiverEmail != null) {
