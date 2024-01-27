@@ -44,7 +44,6 @@ public class PeerConnectionCreator implements RenegotiationMediator {
 
     public PeerConnection createPeerConnection() {
 
-
         return peerConnectionFactory.createPeerConnection(rtcConfiguration, new PeerConnectionObserver(TAG + ":PeerConnectionFactory") {
             @Override
             public void onSignalingChange(PeerConnection.SignalingState signalingState) {
