@@ -10,6 +10,7 @@ import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.Component;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.DestinationEmailMediator;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationManager;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationMediator;
+import com.syncpeer.syncpeerapp.videocall.webrtc.observers.VideoSinkObserver;
 import com.syncpeer.syncpeerapp.videocall.webrtc.senders.OfferSender;
 import com.syncpeer.syncpeerapp.videocall.webrtc.video.VideoCapturerCreator;
 
@@ -22,6 +23,9 @@ import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
+import org.webrtc.RtpSender;
+import org.webrtc.RtpTransceiver;
+import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
@@ -56,22 +60,27 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     private DataChannel dataChannel;
     private RenegotiationManager renegotiationManager;
     private Deque<String> messages;
+    private SurfaceViewRenderer localVideoView;
+    private EglBase rootEglBase;
+    private Boolean once = false;
 
-    public PeerToPeerConnectionEstablishment(Context context, String email,String destinationEmail, DestinationEmailMediator destinationEmailMediator) throws URISyntaxException, InterruptedException {
+    public PeerToPeerConnectionEstablishment(Context context, String email, String destinationEmail, DestinationEmailMediator destinationEmailMediator, SurfaceViewRenderer localVideoView, EglBase rootEglBase) throws URISyntaxException, InterruptedException {
 
         this.context = context;
+        this.rootEglBase = rootEglBase;
         this.email = email;
+        this.localVideoView = localVideoView;
+
         this.destinationEmail = destinationEmail;
         this.destinationEmailMediator = destinationEmailMediator;
         this.destinationEmailMediator.registerComponent(this);
         this.destinationEmailMediator.setDestinationEmailShared(destinationEmail);
         this.peerConnectionFactory = initializePeerConnectionFactory(context);
+
         this.renegotiationManager = new RenegotiationManager();
         this.renegotiationManager.registerComponent(this);
         this.messages = new LinkedList<>();
-
         EventBus.getDefault().register(this);
-
         this.webSocket = new CustomWebSocketClient(new URI(BuildConfig.SIGNALING_SERVER),
                 "WebSocketClient",
                 BuildConfig.SIGNALING_SERVER_SEND_ICE_TOPIC + "/" + email,
@@ -86,8 +95,66 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
 
     }
 
-    private PeerConnectionFactory initializePeerConnectionFactory(Context context) {
-        var rootEglBase = EglBase.create();
+    private void renderFramesToLocalVideoView() {
+
+        if (localVideoView != null && localVideoView.isAttachedToWindow()) {
+            VideoSinkObserver videoSinkObserver = new VideoSinkObserver("VideoSinkObserver",localVideoView);
+
+            this.videoCapturer =new VideoCapturerCreator(context, videoSinkObserver, rootEglBase).createVideoCapturer();
+            var widthPixels = (int)(120 * context.getResources().getDisplayMetrics().density);
+            var heightPixels = (int)(160 * context.getResources().getDisplayMetrics().density);
+            // Create video source and track
+            this.videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
+            this.localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
+            this.localVideoTrack.setEnabled(true);
+            Log.d(TAG, "isVideoTrackEnabled:" + localVideoTrack.enabled());
+
+            localVideoTrack.addSink(videoSinkObserver);
+            RtpSender sender = peerConnection.addTrack(localVideoTrack);
+            if (sender == null) {
+                Log.e(TAG, "Failed to add localVideoTrack to peerConnection");
+            } else {
+                Log.d(TAG, "localVideoTrack added to peerConnection successfully");
+            }
+            boolean isLocalVideoTrackAdded = false;
+
+            for (RtpTransceiver transceiver : peerConnection.getTransceivers()) {
+                if (transceiver.getSender() != null && transceiver.getSender().track() != null
+                        && transceiver.getSender().track().id().equals(localVideoTrack.id())) {
+                    // The localVideoTrack is associated with this transceiver
+                    isLocalVideoTrackAdded = true;
+                    break;
+                }
+            }
+
+            if (isLocalVideoTrackAdded) {
+                Log.d(TAG, "localVideoTrack is added to peerConnection");
+            } else {
+                Log.d(TAG, "localVideoTrack is NOT added to peerConnection");
+            }
+            // Add frame listener for bitmap on the UI thread
+            localVideoView.addFrameListener(bitmap -> {
+                // Perform UI-related operations here using the bitmap
+                Log.d(TAG, "onFrame: " + bitmap.toString());
+            }, 1);
+
+            // Add frame listener for frame on the UI thread
+            localVideoView.post(() -> localVideoView.addFrameListener(frame -> {
+                // Perform UI-related operations here using the frame
+                Log.d(TAG, "SurfaceViewRenderer frame received");
+            }, 1));
+
+            localVideoView.post(() -> {
+                Log.d(TAG, "initializePeerConnections:" + localVideoView.isEnabled());
+
+                videoCapturer.startCapture(widthPixels, heightPixels, 24);
+            });
+
+
+        }
+
+    }
+        private PeerConnectionFactory initializePeerConnectionFactory(Context context) {
 
         PeerConnectionFactory.InitializationOptions initializationOptions = PeerConnectionFactory
                 .InitializationOptions
@@ -110,6 +177,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
 
 
     public void initializePeerConnections() {
+
         List<PeerConnection.IceServer> iceServers = new ArrayList<>(
                 List.of(
                         PeerConnection
@@ -149,15 +217,12 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         this.webSocket.setPeerConnection(peerConnection);
         this.webSocket.setRemotePeerConnection(remotePeerConnection);
 
+        if(!once){
+            once = true;
+            renderFramesToLocalVideoView();
+        }
 
-        videoSource = peerConnectionFactory
-                .createVideoSource(
-                        new VideoCapturerCreator(context)
-                                .createVideoCapturer()
-                                .isScreencast()
-                );
-        VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
-        peerConnection.addTrack(localVideoTrack);
+
     }
 
     public void sendMessageToPeer(String message) {
@@ -188,6 +253,7 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         if(event.getNeeded())
             OfferSender.createAndSendOffer(webSocket, peerConnection, destinationEmail, email);
     }
+
     private void sendMessageViaDataChannel(String message) {
         dataChannel.registerObserver(new DataChannel.Observer() {
 
@@ -224,8 +290,12 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     public void updateStatus(Boolean status) {
         Log.d(TAG, "updateStatus: " + status);
     }
-    public void unregister(){
+    public void unregister() throws InterruptedException {
         EventBus.getDefault().unregister(this);
+        if(videoCapturer!=null) {
+            videoCapturer.stopCapture();
+            videoCapturer.dispose();
+        }
     }
 }
 

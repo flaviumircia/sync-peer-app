@@ -1,9 +1,15 @@
 package com.syncpeer.syncpeerapp.videocall
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.opengl.GLES20
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,16 +28,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.syncpeer.syncpeerapp.R
 import com.syncpeer.syncpeerapp.auth.utils.Constants
 import com.syncpeer.syncpeerapp.videocall.webrtc.PeerToPeerConnectionEstablishment
 import com.syncpeer.syncpeerapp.videocall.webrtc.events.MessageEvent
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.DestinationEmailMediator
+import com.syncpeer.syncpeerapp.videocall.webrtc.observers.RendererEventsObserver
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.webrtc.EglBase
+import org.webrtc.RendererCommon
+import org.webrtc.SurfaceViewRenderer
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -40,9 +53,19 @@ import java.util.concurrent.TimeUnit
 class VideoCallActivity : AppCompatActivity() {
     private var peerToPeerConnectionEstablishment: PeerToPeerConnectionEstablishment? = null
     private lateinit var sendingText:String
+    private var isGranted:Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val rootEglBase = EglBase.create()
         setContentView(R.layout.activity_video_call)
+        val surfaceViewRenderer = findViewById<SurfaceViewRenderer>(R.id.surfaceViewRenderer)
+        surfaceViewRenderer.init(rootEglBase.eglBaseContext,RendererEventsObserver("RendererEventsObserver"))
+        surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+        surfaceViewRenderer.setZOrderMediaOverlay(false)
+        surfaceViewRenderer.setEnableHardwareScaler(true)
+        surfaceViewRenderer.setMirror(true)
+        surfaceViewRenderer.visibility = View.VISIBLE
+
 
         val email = applicationContext
             .getSharedPreferences(Constants.USER_EMAIL, MODE_PRIVATE)
@@ -50,35 +73,62 @@ class VideoCallActivity : AppCompatActivity() {
 
         val destinationMail = intent.getStringExtra("destination_mail")
         this.sendingText = "Send Message to Peer $destinationMail"
+        val cameraPermission = Manifest.permission.CAMERA
 
-        peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(
-            applicationContext,
-            email,
-            destinationMail,
-            DestinationEmailMediator(),
-        )
-
-        val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-        val task = Runnable {
-            peerToPeerConnectionEstablishment?.initializePeerConnections()
+        if (ContextCompat.checkSelfPermission(this, cameraPermission) == PackageManager.PERMISSION_GRANTED) {
+            isGranted = true
+        } else {
+            // Permission is not granted
+            // Request the permission
+            ActivityCompat.requestPermissions(this, arrayOf(cameraPermission), 100)
         }
-        val future = executor.scheduleAtFixedRate(task, 0, 5, TimeUnit.SECONDS)
+        if(isGranted) {
+            peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(
+                applicationContext,
+                email,
+                destinationMail,
+                DestinationEmailMediator(),
+                surfaceViewRenderer,
+                rootEglBase
+            )
 
-        EventBus.getDefault().register(this);
-
-        setContent {
+            val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+            val task = Runnable {
+                peerToPeerConnectionEstablishment?.initializePeerConnections()
+            }
+            val future = executor.scheduleAtFixedRate(task, 2, 5, TimeUnit.SECONDS)
+        }
+        EventBus.getDefault().register(this)
+        val composeView = findViewById<ComposeView>(R.id.composeView)
+        composeView.setContent {
             MainScreen()
         }
-    }
 
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 100) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                isGranted = true
+            } else {
+                Toast.makeText(this,"NU E BINE",Toast.LENGTH_LONG).show()
+                onDestroy()
+            }
+        }
+    }
     @Composable
     @Preview
     fun MainScreen() {
         var messageToSend by remember { mutableStateOf("") }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+            ,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
             TextField(
                 value = messageToSend,
