@@ -29,7 +29,8 @@ public class VideoCapturerCreator {
 
         // Select the front or back camera (or any specific camera)
         for (String deviceName : deviceNames) {
-            if (enumerator.isFrontFacing(deviceName)) {
+            //TODO: ONLY FOR TESTING PURPOSES REMOVE AFTER
+            if (deviceName.equals("10")||enumerator.isFrontFacing(deviceName)) {
                 // Use the front-facing camera
                 return createCameraCapturer(enumerator, deviceName);
             }

@@ -10,6 +10,8 @@ import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
+import org.webrtc.RtpReceiver;
+import org.webrtc.RtpTransceiver;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +33,7 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
     @Override
     public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
         Log.d(TAG, "onIceConnectionChange: " + iceConnectionState);
+
     }
 
     @Override
@@ -65,6 +68,20 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
     }
 
     @Override
+    public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
+        Log.d(TAG, "onAddTrack: " + receiver.track().toString());
+
+        PeerConnection.Observer.super.onAddTrack(receiver, mediaStreams);
+    }
+
+    @Override
+    public void onTrack(RtpTransceiver transceiver) {
+        Log.d(TAG, "onTrack: " + transceiver.toString());
+
+        PeerConnection.Observer.super.onTrack(transceiver);
+    }
+
+    @Override
     public void onDataChannel(DataChannel dataChannel) {
         Log.d(TAG, "OnDataChannelState: " + dataChannel.state());
         dataChannel.registerObserver(new DataChannel.Observer() {
@@ -82,7 +99,6 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
             @Override
             public void onMessage(DataChannel.Buffer buffer) {
                 if (dataChannel.state().equals(DataChannel.State.OPEN)) {
-
                     Log.d("DataChannelRemotePeer", "onMessage: ");
                     if (buffer.binary) {
                         // Handle binary data if needed
@@ -103,6 +119,7 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
 
             }
         });
+
     }
 
     @Override

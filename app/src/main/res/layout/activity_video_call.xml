@@ -13,12 +13,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/remoteSurfaceViewRenderer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/light_blue"/>
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/surfaceViewRenderer"
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_height="match_parent"
+            android:layout_width="120dp"
+            android:layout_height="160dp"
+            android:layout_gravity="right"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.817"

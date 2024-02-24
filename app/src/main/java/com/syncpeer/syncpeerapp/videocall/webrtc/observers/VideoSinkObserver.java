@@ -17,7 +17,9 @@ public class VideoSinkObserver implements VideoSink {
     }
     @Override
     public void onFrame(VideoFrame videoFrame) {
-        Log.d(TAG, "Frame received in VideoSinkObserver ");
+        if(TAG.equals("REMOTE"))
+            Log.d(TAG, "Frame received in VideoSinkObserver ");
         surfaceViewRenderer.onFrame(videoFrame);
     }
+
 }

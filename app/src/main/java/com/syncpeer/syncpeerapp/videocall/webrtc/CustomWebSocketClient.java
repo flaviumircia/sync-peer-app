@@ -78,32 +78,26 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
 
     private void sendAnswer(PeerConnection remotePeer, SdpOfferDto remote, WebSocketClient webSocket) {
         destinationEmailMediator.setDestinationEmailShared(remote.getSource());
-        remotePeer.setRemoteDescription(new SessionDescriptionObserver("RemotePeerConnectionSetRemoteDescription") {
+        remotePeer.setRemoteDescription(new SessionDescriptionObserver("RemotePeerConnectionSetRemoteDescription"),remote.getSdpMessage());
+
+        remotePeer.createAnswer(new SessionDescriptionObserver("RemotePeerCreateAnswer") {
             @Override
-            public void onSetSuccess() {
-                super.onSetSuccess();
-                remotePeer.createAnswer(new SessionDescriptionObserver("RemotePeerCreateAnswer") {
-                    @Override
-                    public void onCreateSuccess(SessionDescription sessionDescription) {
-                        super.onCreateSuccess(sessionDescription);
-                        remotePeer.setLocalDescription(new SessionDescriptionObserver("RemotePeerConnectionSetLocalDescription"),
-                                sessionDescription);
+            public void onCreateSuccess(SessionDescription sessionDescription) {
+                super.onCreateSuccess(sessionDescription);
+                remotePeer.setLocalDescription(new SessionDescriptionObserver("RemotePeerConnectionSetLocalDescription"),
+                        sessionDescription);
 
-                        var sdpOffer = new SdpOfferDto(
-                                remote.getSource(),
-                                remote.getDestination(),
-                                sessionDescription);
+                var sdpOffer = new SdpOfferDto(
+                        remote.getSource(),
+                        remote.getDestination(),
+                        sessionDescription);
 
-                        WebSocketOperations.Companion.send(
-                                webSocket,
-                                gson.toJson(sdpOffer),
-                                BuildConfig.SIGNALING_SERVER_SEND_ENDPOINT + BuildConfig.OFFER);
-                    }
-                }, new MediaConstraints());
+                WebSocketOperations.Companion.send(
+                        webSocket,
+                        gson.toJson(sdpOffer),
+                        BuildConfig.SIGNALING_SERVER_SEND_ENDPOINT + BuildConfig.OFFER);
             }
-
-        }, remote.getSdpMessage());
-
+        }, new MediaConstraints());
 
     }
 

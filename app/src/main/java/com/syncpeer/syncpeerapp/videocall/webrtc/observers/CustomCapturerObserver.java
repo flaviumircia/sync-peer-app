@@ -15,6 +15,7 @@ public class CustomCapturerObserver implements CapturerObserver {
     public CustomCapturerObserver(String tag, VideoSinkObserver videoSinkObserver) {
         TAG = tag;
         this.videoSinkObserver = videoSinkObserver;
+
     }
 
     @Override
@@ -29,16 +30,8 @@ public class CustomCapturerObserver implements CapturerObserver {
 
     @Override
     public void onFrameCaptured(VideoFrame videoFrame) {
-        Log.d(TAG, "onFrameCaptured: " + videoFrame.toString());
+//        Log.d(TAG, "onFrameCaptured: " + videoFrame.toString());
         videoSinkObserver.onFrame(videoFrame);
-    }
-
-    private void logBuffer(ByteBuffer buffer){
-        while (buffer.hasRemaining()) {
-            int byteValue = buffer.get() & 0xFF;  // Convert to unsigned byte value
-            Log.d(TAG, "onData: " + byteValue);
-
-        }
     }
 
 }
