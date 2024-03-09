@@ -153,7 +153,7 @@ class VideoCallActivity : AppCompatActivity() {
             )
             Button(
                 onClick = {
-                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend)
+                    peerToPeerConnectionEstablishment?.sendMessageViaDataChannel(messageToSend)
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,

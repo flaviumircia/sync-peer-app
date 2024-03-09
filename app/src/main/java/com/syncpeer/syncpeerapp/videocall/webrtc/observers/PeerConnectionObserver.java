@@ -83,7 +83,6 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
 
     @Override
     public void onDataChannel(DataChannel dataChannel) {
-        Log.d(TAG, "OnDataChannelState: " + dataChannel.state());
         dataChannel.registerObserver(new DataChannel.Observer() {
             @Override
             public void onBufferedAmountChange(long l) {
@@ -92,14 +91,14 @@ public class PeerConnectionObserver implements PeerConnection.Observer {
 
             @Override
             public void onStateChange() {
-                Log.d("DataChannelPeer", "onStateChange: " + dataChannel.state());
+                Log.d(TAG+"DATACHANNEL", "onStateChange: " + dataChannel.state());
 
             }
 
             @Override
             public void onMessage(DataChannel.Buffer buffer) {
                 if (dataChannel.state().equals(DataChannel.State.OPEN)) {
-                    Log.d("DataChannelRemotePeer", "onMessage: ");
+                    Log.d(TAG+"DATACHANNEL", "onMessage: ");
                     if (buffer.binary) {
                         // Handle binary data if needed
                         ByteBuffer data = buffer.data;

@@ -12,7 +12,7 @@ import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.DestinationEmailMedia
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationManager;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationMediator;
 import com.syncpeer.syncpeerapp.videocall.webrtc.observers.VideoSinkObserver;
-import com.syncpeer.syncpeerapp.videocall.webrtc.senders.OfferSender;
+import com.syncpeer.syncpeerapp.videocall.webrtc.senders.RequestSender;
 import com.syncpeer.syncpeerapp.videocall.webrtc.video.VideoCapturerCreator;
 
 import org.greenrobot.eventbus.EventBus;
@@ -22,19 +22,14 @@ import org.webrtc.DataChannel;
 import org.webrtc.DefaultVideoDecoderFactory;
 import org.webrtc.DefaultVideoEncoderFactory;
 import org.webrtc.EglBase;
-import org.webrtc.MediaStream;
-import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpSender;
-import org.webrtc.RtpTransceiver;
 import org.webrtc.StatsReport;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
-import org.webrtc.VideoFrame;
-import org.webrtc.VideoSink;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
@@ -46,9 +41,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class PeerToPeerConnectionEstablishment implements Component, RenegotiationMediator {
 
@@ -57,21 +49,17 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
     private final Context context;
     private final DestinationEmailMediator destinationEmailMediator;
     private VideoCapturer videoCapturer;
-    private VideoSource videoSource;
-    private VideoTrack localVideoTrack;
     private VideoTrack remoteVideoTrack;
     private CustomWebSocketClient webSocket;
     private final String email;
     private String destinationEmail;
     private PeerConnection peerConnection;
     private PeerConnection remotePeerConnection;
-    private DataChannel dataChannel;
     private RenegotiationManager renegotiationManager;
     private Deque<String> messages;
     private SurfaceViewRenderer localVideoView;
     private SurfaceViewRenderer remoteVideoView;
     private EglBase rootEglBase;
-    private Boolean once = false;
 
     public PeerToPeerConnectionEstablishment(Context context,
                                              String email,
@@ -173,118 +161,97 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
         this.webSocket.setPeerConnection(peerConnection);
         this.webSocket.setRemotePeerConnection(remotePeerConnection);
 
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        Runnable task1 = this::renderFramesToLocalVideoView;
-        Runnable task2 = this::renderFramesToRemoteVideoView;
-
-        executorService.schedule(task1, 1, TimeUnit.SECONDS);
-        executorService.schedule(task2, 2, TimeUnit.SECONDS);
-
-        executorService.shutdown();
-    }
-
-    private void renderFramesToLocalVideoView() {
-
-        if (localVideoView != null && localVideoView.isAttachedToWindow()) {
-            VideoSinkObserver videoSinkObserver = new VideoSinkObserver("VideoSinkObserver", localVideoView);
-
-            this.videoCapturer = new VideoCapturerCreator(context, videoSinkObserver, rootEglBase).createVideoCapturer();
-            var widthPixels = (int) (120 * context.getResources().getDisplayMetrics().density);
-            var heightPixels = (int) (160 * context.getResources().getDisplayMetrics().density);
-            // Create video source and track
-            this.videoSource = peerConnectionFactory.createVideoSource(videoCapturer.isScreencast());
-            this.localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack" + email, videoSource);
-            this.localVideoTrack.setEnabled(true);
-
-// Create a MediaStream with a label
-            MediaStream mediaStream = peerConnectionFactory.createLocalMediaStream("mediaStream");
-// Add the local video track to the media stream
-            mediaStream.addTrack(localVideoTrack);
-
-// Create an observer to handle video rendering (assuming videoSinkObserver is a valid implementation)
-            localVideoTrack.addSink(videoSinkObserver);
-
-// Add the local video track to the PeerConnection
-            RtpTransceiver transceiver = peerConnection.addTransceiver(localVideoTrack);
-            Log.d(TAG, "renderFramesToLocalVideoView: " + transceiver.getDirection().name());
-            localVideoView.post(() -> {
-                Log.d(TAG, "initializePeerConnections:" + localVideoView.isEnabled());
-                videoCapturer.startCapture(widthPixels, heightPixels, 24);
-            });
-
-
+        renderFramesToLocalVideoView();
+        try {
+            Thread.sleep(2000);
+        }catch (Exception e){
+            Log.e(TAG, "initializePeerConnections: ", e);
         }
 
+        RequestSender.createAndSendOffer(webSocket,peerConnection,destinationEmail,email);
+
+        try {
+            Thread.sleep(2000);
+        }catch (Exception e){
+            Log.e(TAG, "initializePeerConnections: ", e);
+        }
+
+        renderFramesToRemoteVideoView();
     }
 
-    private void renderFramesToRemoteVideoView() {
 
-        if (remoteVideoView != null && remoteVideoView.isAttachedToWindow() && remoteVideoTrack != null) {
+    public boolean renderFramesToLocalVideoView() {
+        //TODO: The frames are not sent (confirmed by the webRTcSTATS)
+        // possible bad code on the localvideotrack (the frames are locally rendered without the localVideotrack)
+        if (localVideoView != null && localVideoView.isAttachedToWindow()) {
+
+            // Create VideoSource and VideoTrack
+            VideoSource videoSource = peerConnectionFactory.createVideoSource(false);
+            VideoTrack localVideoTrack = peerConnectionFactory.createVideoTrack("localVideoTrack", videoSource);
+
+            var videoSinkObserver = new VideoSinkObserver("VideoSinkObserver", localVideoView);
+            this.videoCapturer = new VideoCapturerCreator(context,
+                    videoSinkObserver,
+                    rootEglBase,
+                    videoSource
+            ).createVideoCapturer();
+            videoCapturer.startCapture(
+                    (int) (120 * context.getResources().getDisplayMetrics().density),
+                    (int) (160 * context.getResources().getDisplayMetrics().density),
+                    24);
+
+            RtpSender videoSender = peerConnection.addTrack(localVideoTrack);
+
+            peerConnection.getStats(videoSender, rtcStatsReport ->
+                    rtcStatsReport.getStatsMap().forEach((k, v) -> {
+                        Log.d(TAG, "onStatsDelivered: " + k + ":" + v);
+                    }));
+
+
+            return true;
+        }
+        return false;
+    }
+
+    public boolean renderFramesToRemoteVideoView() {
+
+        if (remoteVideoView != null &&
+                remoteVideoView.isAttachedToWindow() &&
+                remoteVideoTrack != null &&
+                remoteVideoTrack.enabled()) {
             VideoSinkObserver videoSinkObserver = new VideoSinkObserver("REMOTE", remoteVideoView);
-
-//            VideoSinkObserver videoSinkObserver = new VideoSinkObserver("RemoteVideoSinkObserver", remoteVideoView);
-//TODO: THIS IS BULLSHIT, WATCH THE onAddStream from the remote peerConnection and if you have a mediastream call this function with
-            // renderFramesToVideoView(mediaStream)
-            //TODO:
-            // Iterate through transceivers in the remotePeerConnection
-            remoteVideoTrack.enabled();
             // Assuming you have a method to handle the remote track
             handleRemoteVideoTrack(remoteVideoTrack);
             // Add the remoteVideoView as a sink to the remoteVideoTrack
             remoteVideoTrack.addSink(videoSinkObserver);
-            once = true;
-
+            return true;
         }
-
+        return false;
     }
 
 
     private void handleRemoteVideoTrack(VideoTrack remoteVideoTrack) {
         Log.d(TAG, "handleRemoteVideoTrack: " + remoteVideoTrack.id());
+        Log.d(TAG, "Remote Video Track Properties: " +
+                "Enabled: " + remoteVideoTrack.enabled() +
+                ", State: " + remoteVideoTrack.state());
     }
 
-    public void sendMessageToPeer(String message) {
-        messages.offer(message);
-
-        var executor = Executors.newScheduledThreadPool(1);
-
-        var renegotiateTask = new Runnable() {
-            @Override
-            public void run() {
-                sendMessageViaDataChannel(messages.peek());
-            }
-        };
-        var callback = executor.scheduleAtFixedRate(renegotiateTask, 0, 1, TimeUnit.SECONDS);
-
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void renegotiate(OnRenegotiationEvent event) {
-        if (event.getNeeded()) {
-            OfferSender.createAndSendOffer(webSocket, peerConnection, destinationEmail, email);
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void receiveRemoteVideoTrack(TrackEvent event) {
-        this.remoteVideoTrack = event.getVideoTrack();
-    }
-
-    private void sendMessageViaDataChannel(String message) {
+    public void sendMessageViaDataChannel(String message) {
         DataChannel.Init dataChannelInit = new DataChannel.Init();
-        this.dataChannel = peerConnection.createDataChannel("dataChannel", dataChannelInit);
+        var dataChannel = peerConnection.createDataChannel("dataChannel", dataChannelInit);
+
         dataChannel.registerObserver(new DataChannel.Observer() {
 
             @Override
             public void onBufferedAmountChange(long l) {
-                // Handle buffered amount change, if needed
+                Log.d(TAG, "onBufferedAmountChange: " + l);
             }
 
             @Override
             public void onStateChange() {
                 Log.d("DataChannel", "onStateChange: " + dataChannel.state());
-                if (dataChannel != null && dataChannel.state().equals(DataChannel.State.OPEN)) {
+                if (dataChannel.state().equals(DataChannel.State.OPEN)) {
                     ByteBuffer buffer = ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8));
                     DataChannel.Buffer data = new DataChannel.Buffer(buffer, false);
                     dataChannel.send(data);
@@ -317,5 +284,18 @@ public class PeerToPeerConnectionEstablishment implements Component, Renegotiati
             videoCapturer.dispose();
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void renegotiate(OnRenegotiationEvent event) {
+        if (event.getNeeded() && peerConnection != null) {
+            RequestSender.createAndSendOffer(webSocket, peerConnection, destinationEmail, email);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void receiveRemoteVideoTrack(TrackEvent event) {
+        this.remoteVideoTrack = event.getVideoTrack();
+    }
+
 }
 

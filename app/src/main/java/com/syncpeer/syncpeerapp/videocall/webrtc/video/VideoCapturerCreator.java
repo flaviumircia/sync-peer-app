@@ -10,16 +10,19 @@ import org.webrtc.CameraEnumerator;
 import org.webrtc.EglBase;
 import org.webrtc.SurfaceTextureHelper;
 import org.webrtc.VideoCapturer;
+import org.webrtc.VideoSource;
 
 public class VideoCapturerCreator {
 
     private final Context context;
     private final VideoSinkObserver videoSinkObserver;
     private final EglBase rootEglBase;
-    public VideoCapturerCreator(Context context, VideoSinkObserver videoSinkObserver, EglBase rootEglBase){
+    private final VideoSource videoSource;
+    public VideoCapturerCreator(Context context, VideoSinkObserver videoSinkObserver, EglBase rootEglBase, VideoSource videoSource){
         this.context = context;
         this.videoSinkObserver = videoSinkObserver;
         this.rootEglBase=rootEglBase;
+        this.videoSource = videoSource;
     }
     public VideoCapturer createVideoCapturer() {
 
@@ -41,7 +44,9 @@ public class VideoCapturerCreator {
     private VideoCapturer createCameraCapturer(CameraEnumerator enumerator, String deviceName) {
         SurfaceTextureHelper surfaceTextureHelper = SurfaceTextureHelper.create("CameraTexture", rootEglBase.getEglBaseContext());
         VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, new CustomVideoCapturer("VideoCapturer"));
-        videoCapturer.initialize(surfaceTextureHelper, context,new CustomCapturerObserver("CapturerObserver", videoSinkObserver));
+        videoCapturer.initialize(surfaceTextureHelper,
+                context,
+                new CustomCapturerObserver("CapturerObserver", videoSinkObserver, videoSource));
 
         return videoCapturer;
     }

@@ -21,8 +21,8 @@ android {
     productFlavors {
         dev {
             dimension "environment"
-            buildConfigField "String","AUTH_API",'"http://192.168.1.192:8080/"'
-            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.192:8090/ws"'
+            buildConfigField "String","AUTH_API",'"http://192.168.1.195:8080/"'
+            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.195:8090/ws"'
             buildConfigField "String","SIGNALING_SERVER_SEND_ENDPOINT",'"/app/offer/send"'
             buildConfigField "String","OFFER",'"Offer"'
             buildConfigField "String","ICE_OFFER",'"IceOffer"'

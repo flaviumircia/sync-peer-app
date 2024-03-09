@@ -1,24 +1,21 @@
 package com.syncpeer.syncpeerapp.videocall.webrtc;
 
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.syncpeer.syncpeerapp.BuildConfig;
 import com.syncpeer.syncpeerapp.videocall.utils.IceCandidateDto;
-import com.syncpeer.syncpeerapp.videocall.webrtc.events.MessageEvent;
+import com.syncpeer.syncpeerapp.videocall.webrtc.events.OnRenegotiationEvent;
 import com.syncpeer.syncpeerapp.videocall.webrtc.events.TrackEvent;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationManager;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.RenegotiationMediator;
 import com.syncpeer.syncpeerapp.videocall.webrtc.observers.PeerConnectionObserver;
-import com.syncpeer.syncpeerapp.videocall.webrtc.senders.OfferSender;
 
 import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.client.WebSocketClient;
 import org.webrtc.DataChannel;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaStream;
-import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
 import org.webrtc.RtpReceiver;
@@ -56,7 +53,7 @@ public class PeerConnectionCreator implements RenegotiationMediator {
     public PeerConnection createPeerConnection() {
         //TODO: Here we have a method called onTrack that is triggered when a remote Track is added
         //TODO: I receive the on track but I think i need to add that track to the remoteVideoView to have it
-        boolean[] isCompleted = new boolean[1];
+        //TODO: Check if the local Transceiver is sending frames beside the videoTrack
         PeerConnection peerConnection = peerConnectionFactory.createPeerConnection(rtcConfiguration, new PeerConnectionObserver(TAG + ":PeerConnectionFactory") {
             @Override
             public void onSignalingChange(PeerConnection.SignalingState signalingState) {
@@ -76,8 +73,8 @@ public class PeerConnectionCreator implements RenegotiationMediator {
             @Override
             public void onIceGatheringChange(PeerConnection.IceGatheringState iceGatheringState) {
                 super.onIceGatheringChange(iceGatheringState);
-                if(iceGatheringState== PeerConnection.IceGatheringState.COMPLETE){
-                    isCompleted[0] = true;
+                if(iceGatheringState == PeerConnection.IceGatheringState.COMPLETE){
+                    EventBus.getDefault().post(new OnRenegotiationEvent(true));
                 }
             }
 
@@ -94,11 +91,14 @@ public class PeerConnectionCreator implements RenegotiationMediator {
 
             @Override
             public void onAddStream(MediaStream mediaStream) {
+                Log.d(TAG, "onAddStream: " + mediaStream.videoTracks);
                 super.onAddStream(mediaStream);
             }
 
             @Override
             public void onAddTrack(RtpReceiver receiver, MediaStream[] mediaStreams) {
+                super.onAddTrack(receiver, mediaStreams);
+
                 for (MediaStream mediaStream : mediaStreams) {
                     List<VideoTrack> videoTracks = mediaStream.videoTracks;
 
@@ -114,10 +114,8 @@ public class PeerConnectionCreator implements RenegotiationMediator {
                     VideoTrack videoTrack = (VideoTrack) receiver.track();
                     EventBus.getDefault().post(new TrackEvent(videoTrack));
                 }
-
                 if(mediaStreams.length==0)
                     Log.e(TAG, "No MediaStream associated were found!" + receiver.track().id() +"," + receiver.track().state()+","+receiver.track().enabled()+","+receiver.track().kind());
-                super.onAddTrack(receiver, mediaStreams);
             }
 
             @Override
@@ -152,10 +150,6 @@ public class PeerConnectionCreator implements RenegotiationMediator {
                 super.onTrack(transceiver);
             }
         });
-        if (isCompleted[0]){
-            OfferSender.createAndSendOffer(webSocket, peerConnection, senderEmail, receiverEmail);
-            isCompleted[0]=false;
-        }
         return peerConnection;
     }
 
