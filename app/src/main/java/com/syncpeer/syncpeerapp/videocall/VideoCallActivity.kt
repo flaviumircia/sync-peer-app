@@ -2,11 +2,8 @@ package com.syncpeer.syncpeerapp.videocall
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.opengl.GLES20
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -58,14 +55,12 @@ class VideoCallActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val rootEglBase = EglBase.create()
         setContentView(R.layout.activity_video_call)
-        val surfaceViewRenderer = findViewById<SurfaceViewRenderer>(R.id.surfaceViewRenderer)
-        surfaceViewRenderer.init(rootEglBase.eglBaseContext,RendererEventsObserver("RendererEventsObserver"))
-        surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-        surfaceViewRenderer.setZOrderMediaOverlay(false)
-        surfaceViewRenderer.setEnableHardwareScaler(true)
-        surfaceViewRenderer.setMirror(true)
-        surfaceViewRenderer.visibility = View.VISIBLE
 
+        val remoteSurfaceViewRenderer = findViewById<SurfaceViewRenderer>(R.id.remoteSurfaceViewRenderer)
+        val surfaceViewRenderer = findViewById<SurfaceViewRenderer>(R.id.surfaceViewRenderer)
+
+        initiateSurfaceViewRenderer(surfaceViewRenderer, rootEglBase)
+        initiateSurfaceViewRenderer(remoteSurfaceViewRenderer, rootEglBase)
 
         val email = applicationContext
             .getSharedPreferences(Constants.USER_EMAIL, MODE_PRIVATE)
@@ -89,6 +84,7 @@ class VideoCallActivity : AppCompatActivity() {
                 destinationMail,
                 DestinationEmailMediator(),
                 surfaceViewRenderer,
+                remoteSurfaceViewRenderer,
                 rootEglBase
             )
 
@@ -96,7 +92,7 @@ class VideoCallActivity : AppCompatActivity() {
             val task = Runnable {
                 peerToPeerConnectionEstablishment?.initializePeerConnections()
             }
-            val future = executor.scheduleAtFixedRate(task, 2, 5, TimeUnit.SECONDS)
+            val future = executor.schedule(task, 3, TimeUnit.SECONDS)
         }
         EventBus.getDefault().register(this)
         val composeView = findViewById<ComposeView>(R.id.composeView)
@@ -105,6 +101,22 @@ class VideoCallActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun initiateSurfaceViewRenderer(
+        surfaceViewRenderer: SurfaceViewRenderer,
+        rootEglBase: EglBase
+    ) {
+        surfaceViewRenderer.init(
+            rootEglBase.eglBaseContext,
+            RendererEventsObserver("RendererEventsObserver")
+        )
+        surfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
+        surfaceViewRenderer.setZOrderMediaOverlay(false)
+        surfaceViewRenderer.setEnableHardwareScaler(true)
+        surfaceViewRenderer.setMirror(true)
+        surfaceViewRenderer.visibility = View.VISIBLE
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -120,6 +132,7 @@ class VideoCallActivity : AppCompatActivity() {
     @Composable
     @Preview
     fun MainScreen() {
+        //TODO: The datachannel closes after 1 message
         var messageToSend by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
@@ -140,7 +153,7 @@ class VideoCallActivity : AppCompatActivity() {
             )
             Button(
                 onClick = {
-                    peerToPeerConnectionEstablishment?.sendMessageToPeer(messageToSend)
+                    peerToPeerConnectionEstablishment?.sendMessageViaDataChannel(messageToSend)
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = Color.White,

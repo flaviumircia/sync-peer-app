@@ -1,10 +1,11 @@
 package com.syncpeer.syncpeerapp.videocall.webrtc;
 
+import static com.syncpeer.syncpeerapp.videocall.webrtc.senders.RequestSender.setDescriptionAndSendAnswer;
+
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import com.syncpeer.syncpeerapp.BuildConfig;
 import com.syncpeer.syncpeerapp.videocall.utils.IceCandidateDto;
 import com.syncpeer.syncpeerapp.videocall.utils.SdpOfferDto;
 import com.syncpeer.syncpeerapp.videocall.webrtc.mediators.Component;
@@ -14,9 +15,7 @@ import com.syncpeer.syncpeerapp.videocall.webrtc.observers.SessionDescriptionObs
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.webrtc.MediaConstraints;
 import org.webrtc.PeerConnection;
-import org.webrtc.SessionDescription;
 
 import java.io.StringReader;
 import java.net.URI;
@@ -26,8 +25,7 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
     private final DestinationEmailMediator destinationEmailMediator;
     private PeerConnection peerConnection;
     private PeerConnection remotePeerConnection;
-    private Gson gson;
-    private String iceTopicSubscribeUrl;
+    private final String iceTopicSubscribeUrl;
 
     public CustomWebSocketClient(URI serverUri, String tag, String iceTopicSubscribeUrl, DestinationEmailMediator destinationEmailMediator) {
         super(serverUri);
@@ -35,7 +33,6 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
         this.iceTopicSubscribeUrl = iceTopicSubscribeUrl;
         this.destinationEmailMediator = destinationEmailMediator;
         this.destinationEmailMediator.registerComponent(this);
-        this.gson = new Gson();
     }
 
     @Override
@@ -49,7 +46,9 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
     @Override
     public void onMessage(String message) {
         Log.d(TAG, "onMessage: " + message);
+        var gson = new Gson();
         var reader = parseIncomingMessages(message);
+
         if (message.contains("OFFER") && remotePeerConnection != null) {
             sendAnswer(remotePeerConnection, gson.fromJson(reader, SdpOfferDto.class), this);
         }
@@ -78,33 +77,7 @@ public class CustomWebSocketClient extends WebSocketClient implements Component 
 
     private void sendAnswer(PeerConnection remotePeer, SdpOfferDto remote, WebSocketClient webSocket) {
         destinationEmailMediator.setDestinationEmailShared(remote.getSource());
-        remotePeer.setRemoteDescription(new SessionDescriptionObserver("RemotePeerConnectionSetRemoteDescription") {
-            @Override
-            public void onSetSuccess() {
-                super.onSetSuccess();
-                remotePeer.createAnswer(new SessionDescriptionObserver("RemotePeerCreateAnswer") {
-                    @Override
-                    public void onCreateSuccess(SessionDescription sessionDescription) {
-                        super.onCreateSuccess(sessionDescription);
-                        remotePeer.setLocalDescription(new SessionDescriptionObserver("RemotePeerConnectionSetLocalDescription"),
-                                sessionDescription);
-
-                        var sdpOffer = new SdpOfferDto(
-                                remote.getSource(),
-                                remote.getDestination(),
-                                sessionDescription);
-
-                        WebSocketOperations.Companion.send(
-                                webSocket,
-                                gson.toJson(sdpOffer),
-                                BuildConfig.SIGNALING_SERVER_SEND_ENDPOINT + BuildConfig.OFFER);
-                    }
-                }, new MediaConstraints());
-            }
-
-        }, remote.getSdpMessage());
-
-
+        setDescriptionAndSendAnswer(remotePeer, remote, webSocket);
     }
 
     private JsonReader parseIncomingMessages(String message) {
