@@ -46,11 +46,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-
 class VideoCallActivity : AppCompatActivity() {
+
     private var peerToPeerConnectionEstablishment: PeerToPeerConnectionEstablishment? = null
     private lateinit var sendingText:String
     private var isGranted:Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val rootEglBase = EglBase.create()
@@ -68,16 +69,46 @@ class VideoCallActivity : AppCompatActivity() {
 
         val destinationMail = intent.getStringExtra("destination_mail")
         this.sendingText = "Send Message to Peer $destinationMail"
+
+        requestCameraPermission(
+            email,
+            destinationMail,
+            surfaceViewRenderer,
+            remoteSurfaceViewRenderer,
+            rootEglBase
+        )
+
+        EventBus.getDefault().register(this)
+
+        val composeView = findViewById<ComposeView>(R.id.composeView)
+
+        composeView.setContent {
+            MainScreen()
+        }
+
+    }
+
+    private fun requestCameraPermission(
+        email: String?,
+        destinationMail: String?,
+        surfaceViewRenderer: SurfaceViewRenderer?,
+        remoteSurfaceViewRenderer: SurfaceViewRenderer?,
+        rootEglBase: EglBase?
+    ) {
         val cameraPermission = Manifest.permission.CAMERA
 
-        if (ContextCompat.checkSelfPermission(this, cameraPermission) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                cameraPermission
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             isGranted = true
         } else {
             // Permission is not granted
             // Request the permission
             ActivityCompat.requestPermissions(this, arrayOf(cameraPermission), 100)
         }
-        if(isGranted) {
+        if (isGranted) {
             peerToPeerConnectionEstablishment = PeerToPeerConnectionEstablishment(
                 applicationContext,
                 email,
@@ -88,18 +119,16 @@ class VideoCallActivity : AppCompatActivity() {
                 rootEglBase
             )
 
-            val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-            val task = Runnable {
-                peerToPeerConnectionEstablishment?.initializePeerConnections()
-            }
-            val future = executor.schedule(task, 3, TimeUnit.SECONDS)
+            executeInitializePeerConnection()
         }
-        EventBus.getDefault().register(this)
-        val composeView = findViewById<ComposeView>(R.id.composeView)
-        composeView.setContent {
-            MainScreen()
-        }
+    }
 
+    private fun executeInitializePeerConnection() {
+        val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+        val task = Runnable {
+            peerToPeerConnectionEstablishment?.initializePeerConnections()
+        }
+        val future = executor.schedule(task, 3, TimeUnit.SECONDS)
     }
 
     private fun initiateSurfaceViewRenderer(
