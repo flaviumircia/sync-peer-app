@@ -51,10 +51,7 @@ public class PeerConnectionCreator implements RenegotiationMediator {
     }
 
     public PeerConnection createPeerConnection() {
-        //TODO: Here we have a method called onTrack that is triggered when a remote Track is added
-        //TODO: I receive the on track but I think i need to add that track to the remoteVideoView to have it
-        //TODO: Check if the local Transceiver is sending frames beside the videoTrack
-        PeerConnection peerConnection = peerConnectionFactory.createPeerConnection(rtcConfiguration, new PeerConnectionObserver(TAG + ":PeerConnectionFactory") {
+        return peerConnectionFactory.createPeerConnection(rtcConfiguration, new PeerConnectionObserver(TAG + ":PeerConnectionFactory") {
             @Override
             public void onSignalingChange(PeerConnection.SignalingState signalingState) {
                 super.onSignalingChange(signalingState);
@@ -136,21 +133,9 @@ public class PeerConnectionCreator implements RenegotiationMediator {
 
             @Override
             public void onTrack(RtpTransceiver transceiver) {
-                // Check if the received transceiver contains a VideoTrack
-//                MediaStreamTrack mediaStreamTrack = transceiver.getReceiver().track();
-//
-//                if (mediaStreamTrack instanceof VideoTrack videoTrack) {
-//                    // Now you can use the VideoTrack as needed, for example, add it to a SurfaceViewRenderer
-////                    EventBus.getDefault().post(new TrackEvent(videoTrack));
-//
-//                }
-                //TODO: if this doesn't work, check the local video track id and check if the remote one is the same
-                // on the caller side.
-                // If yes then the problem is purely on the rendering side (capturing the frames somehow)
                 super.onTrack(transceiver);
             }
         });
-        return peerConnection;
     }
 
 
