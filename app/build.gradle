@@ -15,14 +15,17 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
     }
     flavorDimensions "environment"
 
     productFlavors {
         dev {
             dimension "environment"
-            buildConfigField "String","AUTH_API",'"http://192.168.1.192:8080/"'
-            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.1.192:8090/ws"'
+            buildConfigField "String","AUTH_API",'"http://192.168.43.60:8080/"'
+            buildConfigField "String","SIGNALING_SERVER", '"ws://192.168.43.60:8090/ws"'
             buildConfigField "String","SIGNALING_SERVER_SEND_ENDPOINT",'"/app/offer/send"'
             buildConfigField "String","OFFER",'"Offer"'
             buildConfigField "String","ICE_OFFER",'"IceOffer"'
@@ -56,12 +59,21 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
 }
 
 dependencies {
+    implementation 'androidx.activity:activity:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.compose.ui:ui-graphics'
     def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
     implementation composeBom
     androidTestImplementation composeBom
+    implementation("io.coil-kt:coil-compose:1.4.0")
 
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib"

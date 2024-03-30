@@ -37,7 +37,7 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.jwt.observe(this) { message ->
             message?.let {
 
-                if (it.contentEquals("") || it == null)
+                if (it.contentEquals(""))
                     Toast.makeText(
                         this,
                         getString(R.string.wrong_email_or_password),

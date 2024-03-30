@@ -10,11 +10,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
-    <queries android:name="android.permission.QUERY_ALL_PACKAGES"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"/>
 
-    <uses-feature android:name="android.hardware.camera.front"
-        android:required="true"/>
+    <queries android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -27,12 +29,22 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".auth.MainActivity21"
+            android:exported="false"
+            android:label="@string/title_activity_main21"
+            android:theme="@style/Theme.SyncPeerApp" />
+        <activity
+            android:name=".auth.SetProfileActivity"
+            android:exported="false"
+            android:label="@string/title_activity_set_profile"
+            android:theme="@style/Theme.SyncPeerApp" />
+        <activity
             android:name=".videocall.StartCallActivity"
             android:exported="false" />
         <activity
             android:name=".videocall.VideoCallActivity"
-            android:hardwareAccelerated="true"
-            android:exported="false" />
+            android:exported="false"
+            android:hardwareAccelerated="true" />
         <activity
             android:name=".videocall.HomeActivity"
             android:exported="true" />

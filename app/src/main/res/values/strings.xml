@@ -29,4 +29,6 @@
     <string name="passwords_don_t_match">Passwords don\'t match!</string>
     <string name="the_e_mail_address_is_not_valid">The e-mail address is not valid!</string>
     <string name="passwords_should_match_and_have_at_least_10_characters">Passwords should match and have at least 10 characters!</string>
+    <string name="title_activity_set_profile">SetProfileActivity</string>
+    <string name="title_activity_main21">MainActivity21</string>
 </resources>

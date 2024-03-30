@@ -67,7 +67,7 @@ class HomeActivity : AppCompatActivity() {
     @Composable
     @Preview
     fun SelectUserScreen() {
-        SyncPeerAppTheme {
+        SyncPeerAppTheme(context = applicationContext) {
             list.let {
                 if (it != null)
                     RecentConversations(userList = it)
