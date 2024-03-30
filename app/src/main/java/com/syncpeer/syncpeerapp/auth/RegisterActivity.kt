@@ -44,7 +44,7 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 else {
-                    val intent = Intent(this, LoginActivity::class.java)
+                    val intent = Intent(this, SetProfileActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
