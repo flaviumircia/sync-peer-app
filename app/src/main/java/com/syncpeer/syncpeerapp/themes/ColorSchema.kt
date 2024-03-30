@@ -6,8 +6,8 @@ import androidx.core.content.ContextCompat
 import com.syncpeer.syncpeerapp.R
 
 class ColorSchema(private val context:Context){
-    val primary = ContextCompat.getColor(context,R.color.purple_200) // Corresponds to @color/purple_200
-    val primaryVariant = ContextCompat.getColor(context,R.color.purple_700) // Corresponds to @color/purple_700
+    val primary = ContextCompat.getColor(context,R.color.light_blue) // Corresponds to @color/purple_200
+    val primaryVariant = ContextCompat.getColor(context,R.color.light_blue) // Corresponds to @color/purple_700
     val secondary = Color.White // Corresponds to @color/white
     val secondaryVariant = ContextCompat.getColor(context,R.color.deep_blue) // Corresponds to @color/teal_200
     val background = ContextCompat.getColor(context, R.color.deep_blue) // Corresponds to @color/deep_blue

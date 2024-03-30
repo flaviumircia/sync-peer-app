@@ -28,7 +28,7 @@ import coil.compose.rememberImagePainter
 import com.syncpeer.syncpeerapp.R
 
 @Composable
-fun CircleWithImage() {
+fun CircleWithImage(defaultImage: Int) {
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
 
     val pickMedia = pickMediaFromGallery(selectedImageUri)
@@ -51,7 +51,7 @@ fun CircleWithImage() {
             val painter = if (selectedImageUri.value != null) {
                 rememberImagePainter(selectedImageUri.value)
             } else {
-                painterResource(id = R.drawable.account_icon)
+                painterResource(id = defaultImage)
             }
 
             Image(
