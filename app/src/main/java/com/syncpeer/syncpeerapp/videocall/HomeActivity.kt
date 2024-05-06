@@ -127,7 +127,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun startActivityOnClick(user: SelectUserDto) {
-        val intent = Intent(this@HomeActivity, VideoCallActivity::class.java)
+        val intent = Intent(this@HomeActivity, MessagesActivity::class.java)
         intent.putExtra("destination_mail", user.name)
         startActivity(intent)
     }

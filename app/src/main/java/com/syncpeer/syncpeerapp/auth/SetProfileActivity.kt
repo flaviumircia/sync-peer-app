@@ -55,12 +55,14 @@ fun SetProfilePicture() {
 
         CircleWithImage(defaultImage = R.drawable.account_icon)
 
-        Spacer(modifier = Modifier.padding(top = 20.dp)) // Add spacer for spacing between image and text
+        Spacer(modifier = Modifier.padding(top = 20.dp))
 
         DescriptionText(text = "Tap on the above icon to change your profile photo.")
 
-        Spacer(modifier = Modifier.padding(top = 20.dp)) // Add spacer for spacing between text and text field
+        Spacer(modifier = Modifier.padding(top = 20.dp))
 
+        //TODO: Make the authorization with JWT and retrofit
+        // basically check if the JWT is good then add profile photo to the user.
         LightBlueButton(context = LocalContext.current, text = "Create Profile") {
             val intent = Intent(context, LoginActivity::class.java)
             launcher.launch(intent)

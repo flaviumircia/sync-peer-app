@@ -80,12 +80,6 @@ class VideoCallActivity : AppCompatActivity() {
 
         EventBus.getDefault().register(this)
 
-        val composeView = findViewById<ComposeView>(R.id.composeView)
-
-        composeView.setContent {
-            MainScreen()
-        }
-
     }
 
     private fun requestCameraPermission(
@@ -158,48 +152,7 @@ class VideoCallActivity : AppCompatActivity() {
             }
         }
     }
-    @Composable
-    @Preview
-    fun MainScreen() {
-        //TODO: The datachannel closes after 1 message
-        var messageToSend by remember { mutableStateOf("") }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent)
-            ,
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
 
-        ) {
-            TextField(
-                value = messageToSend,
-                onValueChange = { messageToSend = it },
-                label = { Text("Type your message here") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
-            Button(
-                onClick = {
-                    peerToPeerConnectionEstablishment?.sendMessageViaDataChannel(messageToSend)
-                },
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Red
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 40.dp,
-                        end = 40.dp
-                    )
-                    .height(40.dp),
-            ) {
-                Text(text = sendingText)
-            }
-        }
-    }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun onMessageEvent(event: MessageEvent) {

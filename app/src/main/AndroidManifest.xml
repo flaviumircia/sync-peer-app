@@ -39,7 +39,7 @@
             android:label="@string/title_activity_set_profile"
             android:theme="@style/Theme.SyncPeerApp" />
         <activity
-            android:name=".videocall.StartCallActivity"
+            android:name=".videocall.MessagesActivity"
             android:exported="false" />
         <activity
             android:name=".videocall.VideoCallActivity"
